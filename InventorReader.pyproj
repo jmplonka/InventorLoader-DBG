@@ -56,6 +56,7 @@
     <Compile Include="importerSegment.py" />
     <Compile Include="importerSegNode.py" />
     <Compile Include="importerTransformation.py" />
+    <Compile Include="importerUFRxDoc.py" />
     <Compile Include="importerUtils.py" />
     <Compile Include="importer_Style.py">
       <SubType>Code</SubType>

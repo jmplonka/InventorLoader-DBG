@@ -36,8 +36,9 @@ class QImage():
 
 class QApplication():
 	@staticmethod
-	def setOverrideCursor(cursor):
-		return
+	def setOverrideCursor(cursor): return
+	@staticmethod
+	def restoreOverrideCursor(): return
 
 class Qt():
 	WaitCursor  = 0
