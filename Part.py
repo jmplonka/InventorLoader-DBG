@@ -100,6 +100,7 @@ class Geometry(PyObjectBase):
 	@property
 	def Tag(self): return self._Tag
 	def translate(self, vec): return
+	def transform(self, mat): self.vector = mat.mul(self.vector)
 
 class Point(Geometry):
 	def __init__(self, vector):
@@ -135,8 +136,6 @@ class Point(Geometry):
 		return
 	def scale(self, *args):
 		return
-	def transform(self, trans):
-		self.vector = trans.mul(self.vector)
 	def translate(self, trans):
 		self.vector += trans
 	def toShape(self):
