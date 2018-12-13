@@ -100,6 +100,7 @@ class Geometry(PyObjectBase):
 	@property
 	def Tag(self): return self._Tag
 	def translate(self, vec): return
+	def transform(self, mtx): return
 
 class Point(Geometry):
 	def __init__(self, vector):
@@ -218,7 +219,8 @@ class Circle(Conic):
 		major = self.Axis.cross(VEC(0,1,0))
 		major.normalize()
 		return self.Center + major() * self.Radius
-
+	def parameter(self, p):
+		return super(Circle, self).parameter(p)
 class Ellipse(Conic):
 	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
 		super(Ellipse, self).__init__('Ellipse', vecA, vecB)

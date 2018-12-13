@@ -209,17 +209,20 @@ class Document():
 		self.filename = label
 		self.Label = label
 		self.Name  = label
+		self.Objects = []
 
 	def recompute(self):
 		return True
 
 	def addObject(self, className, name):
 		try:
-			return ClassFactory(className, name)
+			obj = ClassFactory(className, name)
+			self.Objects.append(obj)
+			return obj
 		except:
 			Console.PrintError('>E: ' + traceback.format_exc())
 	def removeObject(self, obj):
-		return
+		self.Objects.remove(obj)
 
 class Placement:
 	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):

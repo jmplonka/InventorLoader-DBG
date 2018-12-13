@@ -131,7 +131,7 @@ def myCustomFusionRoutine(list_of_shapes):
                         hash = HashableShape(sh)
                         iPiece = self._piece_to_index.get(hash)
                         if iPiece is not None:
-                            #print "found piece {num} in compound {numc}".format(num= iPiece, numc= i_aggregate)
+                            #print("found piece {num} in compound {numc}".format(num= iPiece, numc= i_aggregate))
                             if not map[iSource][-1].isSame(self.pieces[iPiece]):
                                 map[iSource].append(self.pieces[iPiece])
 
@@ -255,7 +255,7 @@ def myCustomFusionRoutine(list_of_shapes):
             self.gfa_return = new_data.getGFReturn()
             self.parse()
         #else:
-            #print "Nothing was split"
+            #print("Nothing was split")
 
     def _splitInCompound(self, compound, existing_pieces):
         """Splits aggregates inside compound. Returns None if nothing is split, otherwise

@@ -17,7 +17,7 @@ class QMessageBox():
 		return
 	def setText(self, text):
 		return
-	def addButton(self, button, role=0): 
+	def addButton(self, button, role=0):
 		self.buttons[button] = len(self.buttons)
 	def setDefaultButton(self, button):
 		self.default = self.buttons[button]

@@ -30,10 +30,9 @@
     <Compile Include="Acis.py" />
     <Compile Include="Acis2Step.py" />
     <Compile Include="App.py" />
-    <Compile Include="BOPTools\GeneralFuseResult.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="BOPTools\GeneralFuseResult.py" />
     <Compile Include="BOPTools\Utils.py" />
+    <Compile Include="BOPTools\__init__.py" />
     <Compile Include="Draft.py" />
     <Compile Include="FreeCAD.py" />
     <Compile Include="FreeCADGui.py" />
@@ -58,41 +57,26 @@
     <Compile Include="importerTransformation.py" />
     <Compile Include="importerUFRxDoc.py" />
     <Compile Include="importerUtils.py" />
-    <Compile Include="importer_Style.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="importer_Style.py" />
+    <Compile Include="ImportGui.py" />
     <Compile Include="Mesh.py" />
-    <Compile Include="_main.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="_main.py" />
     <Compile Include="Import_IPT.py" />
     <Compile Include="Init.py" />
     <Compile Include="InitGui.py" />
     <Compile Include="Part.py" />
     <Compile Include="PartDesign.py" />
-    <Compile Include="PySide\QtCore.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="PySide\QtCore.py" />
     <Compile Include="PySide\QtGui.py" />
-    <Compile Include="PySide\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="BOPTools\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="PySide\__init__.py" />
+    <Compile Include="BOPTools\__init__.py" />
     <Compile Include="Sketcher.py" />
     <Compile Include="Spreadsheet.py" />
     <Compile Include="Surface.py" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="PySide\" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="BOPTools\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="dump_ipt.bat" />
-    <Content Include="dump_sat.bat" />
+    <Folder Include="PySide\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|2.7" />
