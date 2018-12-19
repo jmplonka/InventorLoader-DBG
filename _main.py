@@ -30,13 +30,15 @@ if __name__ == '__main__':
 				importerIL.open(file)
 	else:
 		# TODO:
-		# ACIS: helix_spl_line
-		# ACIS: srf_srf_v_bl_spl_sur
-		# ACSI; sweep_sur
-		# ACIS: cyl_spl_sur
-		# ACIS: comp_spl_sur
+		# ACIS:
+		#    BSplineCurves:   helix_spl_line
+		#    BSplineSurfaces: srf_srf_v_bl_spl_sur, sweep_sur, cyl_spl_sur, comp_spl_sur
+		#    Formulas
+		# Nativ:
+		#
 		importerUtils.setLoggingInfo(False)
 		importerUtils.setLoggingWarn(False)
+		importerUtils.setLoggingError(True)
 
 #		importerIL.open(u"../intersection/2017/Stylistic Front Face.ipt")          # Don't know how to build surface 'SurfaceSpline::off_spl_sur' - only edges displayed!
 #		importerIL.open(u"../tutorials/2012/Rim.ipt")                              # Don't know how to build surface 'SurfaceSpline::rot_spl_sur' - only edges displayed!

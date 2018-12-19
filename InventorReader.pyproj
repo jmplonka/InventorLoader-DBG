@@ -6,7 +6,7 @@
     <ProjectGuid>efe7509c-1fa6-4d8c-9f2b-821e4371940d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>_main.py</StartupFile>
-    <SearchPath>c:\Python27</SearchPath>
+    <SearchPath></SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>InventorReader</Name>
@@ -57,6 +57,7 @@
     <Compile Include="importerTransformation.py" />
     <Compile Include="importerUFRxDoc.py" />
     <Compile Include="importerUtils.py" />
+    <Compile Include="importer_NameTable.py" />
     <Compile Include="importer_Style.py" />
     <Compile Include="ImportGui.py" />
     <Compile Include="Mesh.py" />
