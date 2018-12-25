@@ -264,6 +264,8 @@ class Matrix():
 		y = self.A21 * v.x + self.A22 * v.y + self.A23 * v.z
 		z = self.A31 * v.x + self.A32 * v.y + self.A33 * v.z
 		return Vector(x, y, z)
+	def __mul__(self, m):
+		return self
 
 ActiveDocument = Document(None)
 

@@ -76,6 +76,7 @@ class AbstractPart(object):
 	def recompute(self): return
 	def rotate(self, placement): return
 	def copy(self): return self;
+	def addProperty(self, clsName, label, property, description): return None
 	@property
 	def Shape(self):
 		if (self._shape is None):
@@ -84,6 +85,7 @@ class AbstractPart(object):
 	@Shape.setter
 	def Shape(self, shape):
 		self._shape = shape
+
 class PyObjectBase(AbstractPart):
 	def __init__(self, name, edges = [], wires = []):
 		super(PyObjectBase, self).__init__(name, edges = [], wires = [])
@@ -100,7 +102,7 @@ class Geometry(PyObjectBase):
 	@property
 	def Tag(self): return self._Tag
 	def translate(self, vec): return
-	def transform(self, mat): self.vector = mat.mul(self.vector)
+	def transform(self, mat): self.Placement = PLC(self.Placement.toMatrix()*mat)
 
 class Point(Geometry):
 	def __init__(self, vector):
