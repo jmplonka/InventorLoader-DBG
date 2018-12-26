@@ -198,7 +198,7 @@ def ClassFactory(path, name):
 		module = sys.modules[moduleName]
 		class_ = getattr(module, className)
 		obj =  class_()
-		obj.Label = name
+		obj.Name = name
 	except:
 		Console.PrintError('>ERROR: can\'t create %s.%s!\n' %(moduleName, className))
 		Console.PrintError('>E: ' + traceback.format_exc())
@@ -207,19 +207,23 @@ def ClassFactory(path, name):
 class Document():
 	def __init__(self, label):
 		self.filename = label
-		self.Label = label
-		self.Name  = label
+		self.Label    = label
+		self.Name     = label
+		self.objects  = {}
 
-	def recompute(self):
-		return True
+	def recompute(self): return True
 
 	def addObject(self, className, name):
 		try:
-			return ClassFactory(className, name)
+			obj = ClassFactory(className, name)
+			self.objects[obj.Name] = obj
+			return obj
 		except:
 			Console.PrintError('>E: ' + traceback.format_exc())
-	def removeObject(self, obj):
-		return
+
+	def getObject(self, name): return self.objects.get(name, None)
+
+	def removeObject(self, name): self.objects.pop(name, None)
 
 class Placement:
 	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):

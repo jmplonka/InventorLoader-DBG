@@ -76,7 +76,9 @@ class AbstractPart(object):
 	def recompute(self): return
 	def rotate(self, placement): return
 	def copy(self): return self;
-	def addProperty(self, clsName, label, property, description): return None
+	def addProperty(self, clsName, name, category, description):
+		setattr(self, name, None) # initialize with default value
+		return
 	@property
 	def Shape(self):
 		if (self._shape is None):
