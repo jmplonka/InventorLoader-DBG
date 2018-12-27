@@ -102,7 +102,7 @@ def _printMessage(stream, msg):
 	try:
 		stream.write(msg)
 	except:
-		stream.write(msg.decode('utf-8'))
+		stream.write(msg.encode('utf-8'))
 
 class Console:
 
