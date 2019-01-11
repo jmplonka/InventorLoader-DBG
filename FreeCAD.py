@@ -5,13 +5,15 @@ FreeCAD.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
-import os, sys, traceback, xml.etree.ElementTree
-from math import sqrt, acos
+import os, sys, traceback, xml.etree.ElementTree, re
+from math                  import sqrt, acos
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
+
+INVALID_NAME = re.compile('^[0-9].*')
 
 GuiUp = False
 
@@ -34,6 +36,15 @@ def ConfigGet(name):
 	if (name == 'BuildVersionMinor'): return 17
 	if (name == 'BuildRevision'):     return 0
 	return ''
+
+def _getObjectName(name):
+	if (sys.version_info.major < 3):
+		v = re.sub(r'[^\x00-\x7f]', r'_', name)
+	else:
+		v = re.sub(b'[^\x00-\x7f]', b'_', name.encode('utf8')).decode('utf8')
+	if (INVALID_NAME.match(name)):
+		return "_%s" %(v)
+	return v
 
 class ParameterGrp:
 	def __init__(self, name):
@@ -209,7 +220,7 @@ class Document():
 		self.filename = label
 		self.Label = label
 		self.Name  = label
-		self.Objects = []
+		self.Objects = {}
 
 	def recompute(self):
 		return True
@@ -217,12 +228,22 @@ class Document():
 	def addObject(self, className, name):
 		try:
 			obj = ClassFactory(className, name)
-			self.Objects.append(obj)
+			self.Objects[name]= obj
 			return obj
 		except:
 			Console.PrintError('>E: ' + traceback.format_exc())
 	def removeObject(self, obj):
-		self.Objects.remove(obj)
+		if obj in self.Objects:
+			del self.Objects[obj]
+			return True
+		return False
+
+	def getObject(self, name):
+		key = _getObjectName(name) # can't use from InventorViewProviders because of circular import
+		try:
+			return self.Objects[key]
+		except:
+			return None
 
 class Placement:
 	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):

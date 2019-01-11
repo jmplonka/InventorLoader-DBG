@@ -25,7 +25,7 @@ class SketchObject():
 		self.Constraint = []
 		self.Geometry = []
 		self.Placement = Placement()
-		self.ViewObject = ViewObject()
+		self.ViewObject = ViewObject(self)
 		self.Shape = Shape()
 
 

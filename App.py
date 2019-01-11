@@ -12,12 +12,13 @@ __version__     = '0.1.0'
 __status__      = 'In-Development'
 
 class ViewObject():
-	def __init__(self):
+	def __init__(self, obj):
 		self.DisplayMode  = None
 		self.DrawStyle    = None
 		self.Lighting     = None
 		self.LineColor    = None
 		self.LineWidth    = None
+		self.Object       = obj
 		self.PointColor   = None
 		self.PointSize    = None
 		self.ShapeColor   = None
@@ -32,7 +33,7 @@ class DocumentObjectGroup():
 	def __init__(self, name = ''):
 		self.name = name
 		self.objects = []
-		self.ViewObject = ViewObject()
+		self.ViewObject = ViewObject(self)
 
 	def addObject(self, obj, name = None):
 		self.objects.append(obj)

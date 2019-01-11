@@ -14,7 +14,7 @@ __status__      = 'In-Development'
 
 class AbstractPart():
 	def __init__(self):
-		self.ViewObject = ViewObject()
+		self.ViewObject = ViewObject(self)
 
 	def setExpression(self, property, expression):
 		pass

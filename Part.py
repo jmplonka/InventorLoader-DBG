@@ -60,7 +60,7 @@ class AbstractPart(object):
 	def __init__(self, name, edges = [], wires = []):
 		self.Name = name
 		self.Label = name
-		self.ViewObject   = ViewObject()
+		self.ViewObject   = ViewObject(self)
 		self.Base         = None
 		self.Placement    = PLC()
 		self.Construction = False
@@ -84,6 +84,9 @@ class AbstractPart(object):
 	@Shape.setter
 	def Shape(self, shape):
 		self._shape = shape
+	def addProperty(self, typeName, name, group, description):
+		setattr(self, name, None)
+
 class PyObjectBase(AbstractPart):
 	def __init__(self, name, edges = [], wires = []):
 		super(PyObjectBase, self).__init__(name, edges = [], wires = [])
@@ -289,7 +292,7 @@ class Shape(PyObjectBase):
 		self._faces = faces
 		self.vertices = vertexes
 		self.ShapeType = "Shape"
-		self.ViewObject   = ViewObject()
+		self.ViewObject   = ViewObject(self)
 	@property
 	def BoundBox(self):
 		minBB = VEC(0,0,0)

@@ -49,6 +49,7 @@
     <Compile Include="importerFreeCAD.py" />
     <Compile Include="importerGraphics.py" />
     <Compile Include="importerNotebook.py" />
+    <Compile Include="importerOle10Nateive.py" />
     <Compile Include="importerReader.py" />
     <Compile Include="importerResults.py" />
     <Compile Include="importerSAT.py" />
@@ -60,6 +61,7 @@
     <Compile Include="importer_NameTable.py" />
     <Compile Include="importer_Style.py" />
     <Compile Include="ImportGui.py" />
+    <Compile Include="InventorViewProviders.py" />
     <Compile Include="Mesh.py" />
     <Compile Include="_main.py" />
     <Compile Include="Import_IPT.py" />
