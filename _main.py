@@ -1,8 +1,9 @@
 ﻿# -*- coding: utf-8 -*-
 
-import os, sys, tempfile, traceback
+import os, sys, tempfile, traceback, gc
 import importerIL, importerSAT, importerUtils
 from Acis2Step import *
+from FreeCAD import Matrix as MAT
 
 def importFolder(p, e):
 	for root, folders, files in os.walk(p):
@@ -11,6 +12,7 @@ def importFolder(p, e):
 				try:
 					filename = root.replace('\\', '/') + '/' + f
 					importerIL.open(filename)
+					gc.collect()
 				except:
 					importerUtils.logError(traceback.format_exc())
 
@@ -72,6 +74,13 @@ if __name__ == '__main__':
 #		importFolder(u"../pro", ".ipt")
 #		importFolder(u"../tutorials", ".ipt")
 
-#		importFolder(u"../test/Annotations", ".ipt")
+#		importFolder(u"../test/", ".ipt")
 
 		importerIL.open(u"../test/FxFillets/Fillet_Face_2mm.ipt")
+
+#		import importerOle10Nateive
+#		ole = importerOle10Nateive.olenative()
+#		with open(u"C:/Users/pln2si/Desktop/[1]Ole10Native", 'rb') as oleFile:
+#			data = oleFile.read()
+#			ole.read(data)
+#			print(ole.getDict())
