@@ -269,7 +269,7 @@ class Matrix():
 		self.A11 = m11
 		self.A12 = m12
 		self.A13 = m13
-		self.A14 = m24
+		self.A14 = m14
 		self.A21 = m21
 		self.A22 = m22
 		self.A23 = m23
@@ -282,12 +282,46 @@ class Matrix():
 		self.A42 = m42
 		self.A43 = m43
 		self.A44 = m44
+	def __repr__(self):
+		return u"Matrix((%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g))"%(self.A11,self.A12,self.A13,self.A14,self.A21,self.A22,self.A23,self.A24,self.A31,self.A32,self.A33,self.A34,self.A41,self.A42,self.A43,self.A44)
+	def __str__(self):
+		return u"Matrix((%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g))"%(self.A11,self.A12,self.A13,self.A14,self.A21,self.A22,self.A23,self.A24,self.A31,self.A32,self.A33,self.A34,self.A41,self.A42,self.A43,self.A44)
 
 	def multiply(self, v):
 		x = self.A11 * v.x + self.A12 * v.y + self.A13 * v.z
 		y = self.A21 * v.x + self.A22 * v.y + self.A23 * v.z
 		z = self.A31 * v.x + self.A32 * v.y + self.A33 * v.z
 		return Vector(x, y, z)
+
+	def __eq__(self, other):
+		for i in range(4):
+			for j in range(4):
+				if (getattr(self, 'A%d%d' %(i+1,j+1)) != getattr(other, 'A%d%d' %(i+1,j+1))):
+					return False
+		return True
+
+	def __mul__(self, other):
+		m11 = self.A11*other.A11 + self.A12*other.A21 + self.A13*other.A31 + self.A14*other.A41
+		m12 = self.A11*other.A12 + self.A12*other.A22 + self.A13*other.A32 + self.A14*other.A42
+		m13 = self.A11*other.A13 + self.A12*other.A23 + self.A13*other.A33 + self.A14*other.A43
+		m14 = self.A11*other.A14 + self.A12*other.A24 + self.A13*other.A34 + self.A14*other.A44
+
+		m21 = self.A21*other.A11 + self.A22*other.A21 + self.A23*other.A31 + self.A24*other.A41
+		m22 = self.A21*other.A12 + self.A22*other.A22 + self.A23*other.A32 + self.A24*other.A42
+		m23 = self.A21*other.A13 + self.A22*other.A23 + self.A23*other.A33 + self.A24*other.A43
+		m24 = self.A21*other.A14 + self.A22*other.A24 + self.A23*other.A34 + self.A24*other.A44
+
+		m31 = self.A31*other.A11 + self.A32*other.A21 + self.A33*other.A31 + self.A34*other.A41
+		m32 = self.A31*other.A12 + self.A32*other.A22 + self.A33*other.A32 + self.A34*other.A42
+		m33 = self.A31*other.A13 + self.A32*other.A23 + self.A33*other.A33 + self.A34*other.A43
+		m34 = self.A31*other.A14 + self.A32*other.A24 + self.A33*other.A34 + self.A34*other.A44
+
+		m41 = self.A41*other.A11 + self.A42*other.A21 + self.A43*other.A31 + self.A44*other.A41
+		m42 = self.A41*other.A12 + self.A42*other.A22 + self.A43*other.A32 + self.A44*other.A42
+		m43 = self.A41*other.A13 + self.A42*other.A23 + self.A43*other.A33 + self.A44*other.A43
+		m44 = self.A41*other.A14 + self.A42*other.A24 + self.A43*other.A34 + self.A44*other.A44
+
+		return Matrix(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
 
 ActiveDocument = Document(None)
 

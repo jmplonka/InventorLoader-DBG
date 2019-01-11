@@ -46,6 +46,7 @@ class SketchObject():
 		index = len(self.Geometry)
 		self.Geometry.append(geometry)
 		geometry.Construction = mode
+		self.Shape.Edges.append(geometry)
 		return index
 
 	def exposeInternalGeometry(self, index):
