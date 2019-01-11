@@ -76,6 +76,9 @@ class AbstractPart(object):
 	def recompute(self): return
 	def rotate(self, placement): return
 	def copy(self): return self;
+	def addProperty(self, clsName, name, category, description):
+		setattr(self, name, None) # initialize with default value
+		return
 	@property
 	def Shape(self):
 		if (self._shape is None):
@@ -103,7 +106,7 @@ class Geometry(PyObjectBase):
 	@property
 	def Tag(self): return self._Tag
 	def translate(self, vec): return
-	def transform(self, mtx): return
+	def transform(self, mat): self.Placement = PLC(self.Placement.toMatrix()*mat)
 
 class Point(Geometry):
 	def __init__(self, vector):
@@ -139,8 +142,6 @@ class Point(Geometry):
 		return
 	def scale(self, *args):
 		return
-	def transform(self, trans):
-		self.vector = trans.mul(self.vector)
 	def translate(self, trans):
 		self.vector += trans
 	def toShape(self):
@@ -222,8 +223,7 @@ class Circle(Conic):
 		major = self.Axis.cross(VEC(0,1,0))
 		major.normalize()
 		return self.Center + major() * self.Radius
-	def parameter(self, p):
-		return super(Circle, self).parameter(p)
+
 class Ellipse(Conic):
 	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
 		super(Ellipse, self).__init__('Ellipse', vecA, vecB)

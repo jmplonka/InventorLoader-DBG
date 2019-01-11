@@ -30,9 +30,9 @@
     <Compile Include="Acis.py" />
     <Compile Include="Acis2Step.py" />
     <Compile Include="App.py" />
+    <Compile Include="BOPTools\__init__.py" />
     <Compile Include="BOPTools\GeneralFuseResult.py" />
     <Compile Include="BOPTools\Utils.py" />
-    <Compile Include="BOPTools\__init__.py" />
     <Compile Include="Draft.py" />
     <Compile Include="FreeCAD.py" />
     <Compile Include="FreeCADGui.py" />

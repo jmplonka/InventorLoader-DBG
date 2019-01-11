@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 '''
 App.py
@@ -24,10 +24,15 @@ class ViewObject():
 		self.ShapeColor   = None
 		self.Transparency = None
 		self.ShapeMaterial = ShapeMaterial()
+		self.Object       = ViewProvider()
 	def hide(self):
 		pass
 	def show(self):
 		pass
+
+class ViewProvider():
+	def __init__(self):
+		return
 
 class DocumentObjectGroup():
 	def __init__(self, name = ''):
