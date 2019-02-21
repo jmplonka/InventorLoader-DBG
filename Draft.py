@@ -33,7 +33,7 @@ def makeCircle(radius, placement, face = False, startAngle = 0, endAngle = 2*pi)
 def makeBSpline(points, closed = False, face = True, support = None):
 	return BSpline(points, closed, face, support)
 
-class BSpline():
+class BSpline(object):
 	def __init__(self, points, closed = False, face = False, support = None):
 		self.points  = points
 		self.closed  = closed

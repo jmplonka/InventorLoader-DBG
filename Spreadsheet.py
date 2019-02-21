@@ -10,7 +10,7 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
 
-class Sheet():
+class Sheet(object):
 	def __init__(self):
 		return
 

@@ -4,10 +4,10 @@
 Mesh.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-class Mesh():
+class Mesh(object):
 	def __init__(self, facets = []):
 		self.facets = facets
 
-class Feature():
+class Feature(object):
 	def __init__(self):
 		self.Mesh = None

@@ -12,7 +12,7 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.3.0'
 __status__      = 'In-Development'
 
-class AbstractPart():
+class AbstractPart(object):
 	def __init__(self):
 		self.ViewObject = ViewObject(self)
 
@@ -21,7 +21,7 @@ class AbstractPart():
 
 class Pad(AbstractPart):
 	def __init__(self):
-		AbstractPart.__init__(self)
+		super(Pad, self).__init__()
 		self.Label = ''
 		self.Sketch = None
 		self.UpToFace = None
@@ -33,12 +33,12 @@ class Pad(AbstractPart):
 
 class Revolution(AbstractPart):
 	def __init__(self):
-		AbstractPart.__init__(self)
+		super(Revolution, self).__init__()
 		self.Label = ''
 
 class Line(AbstractPart):
 	def __init__(self, vector1, vector2):
-		AbstractPart.__init__(self)
+		super(Line, self).__init__()
 		self.vector1 = vector1
 		self.vector2 = vector2
 	@property
@@ -52,7 +52,7 @@ class Line(AbstractPart):
 
 class Circle(AbstractPart):
 	def __init__(self, vector1, vector2, radius):
-		AbstractPart.__init__(self)
+		super(Circle, self).__init__()
 		self.vector1 = vector1
 		self.vector2 = vector2
 		self.Radius  = radius
@@ -62,7 +62,7 @@ class Circle(AbstractPart):
 
 class ArcOfCircle(AbstractPart):
 	def __init__(self, part, radA, radB):
-		AbstractPart.__init__(self)
+		super(ArcOfCircle, self).__init__()
 		self.part = part
 		self.radA = radA
 		self.radB = radB
@@ -75,17 +75,18 @@ class ArcOfCircle(AbstractPart):
 
 class Ellipse(AbstractPart):
 	def __init__(self, vecA, vecB, vecC):
+		super(Ellipse, self).__init__()
 		self.vecA = vecA
 		self.vecB = vecB
 		self.vecC = vecC
-		AbstractPart.__init__(self)
 
 class ArcOfEllipse(AbstractPart):
 	def __init__(self, part, radA, radB):
+		super(ArcOfEllipse, self).__init__()
 		self.part = part
 		self.radA = radA
 		self.radB = radB
 
 class PolarPattern(AbstractPart):
 	def __init__(self):
-		AbstractPart.__init__(self)
+		super(PolarPattern, self).__init__()

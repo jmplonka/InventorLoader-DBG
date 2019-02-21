@@ -15,11 +15,11 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
 
-class Constraint():
+class Constraint(object):
 	def __init__(self, name, a = None, b = None, c = None, d = None, e = None, f = None):
 		self.Name    = name
 
-class SketchObject():
+class SketchObject(object):
 	def __init__(self, name = ''):
 		self.Name = name
 		self.Constraint = []
@@ -27,7 +27,6 @@ class SketchObject():
 		self.Placement = Placement()
 		self.ViewObject = ViewObject(self)
 		self.Shape = Shape()
-
 
 	@property
 	def GeometryCount(self):

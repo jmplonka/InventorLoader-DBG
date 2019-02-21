@@ -46,7 +46,7 @@ def _getObjectName(name):
 		return "_%s" %(v)
 	return v
 
-class ParameterGrp:
+class ParameterGrp(object):
 	def __init__(self, name):
 		names = name.split(' ')
 		file = names[0]
@@ -115,7 +115,7 @@ def _printMessage(stream, msg):
 	except:
 		stream.write(msg.decode('utf-8'))
 
-class Console:
+class Console(object):
 
 	@staticmethod
 	def PrintLog(msg):     _printMessage(sys.stdout, msg)
@@ -129,7 +129,7 @@ class Console:
 	@staticmethod
 	def PrintMessage(msg): _printMessage(sys.stdout, msg)
 
-class Vector:
+class Vector(object):
 	def __init__(self, x=0, y=0, z=0):
 		if (isinstance(x, Vector)):
 			self.x = x.x
@@ -178,7 +178,7 @@ class Vector:
 	def __mul__(self, other):  return Vector(self.x * other, self.y * other, self.z * other)
 	def __rmul__(self, other): return Vector(self.x * other, self.y * other, self.z * other)
 
-class Rotation:
+class Rotation(object):
 	def __init__(self, axis, angle, z=0.0, w=0.0):
 		if (isinstance(axis, Vector)):
 			self.x = axis.x
@@ -215,7 +215,7 @@ def ClassFactory(path, name):
 		Console.PrintError('>E: ' + traceback.format_exc())
 	return obj
 
-class Document():
+class Document(object):
 	def __init__(self, label):
 		self.filename = label
 		self.Label = label
@@ -245,7 +245,7 @@ class Document():
 		except:
 			return None
 
-class Placement:
+class Placement(object):
 	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):
 		if (isinstance(base, Matrix)):
 			self.Base     = Vector(base.A14, base.A24, base.A34)
@@ -257,14 +257,14 @@ class Placement:
 	def multiply(self, d): return self.Base.x*d.Base.x + self.Base.y*d.Base.y + self.Base.z*d.Base.z
 	def toMatrix(self): return Matrix(1,0,0,self.Base.x,0,1,0,self.Base.y,0,0,1,self.Base.z,0,0,0,1)
 
-class Quantity():
+class Quantity(object):
 	def __init__(self, Value=0, Unit = ""):
 		self.Value = Value
 		self.Unit = Unit
 	def __str(self):
 		return "%g %s" %(self.Value, self.Unit)
 
-class Matrix():
+class Matrix(object):
 	def __init__(self, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44):
 		self.A11 = m11
 		self.A12 = m12
@@ -325,18 +325,18 @@ class Matrix():
 
 ActiveDocument = Document(None)
 
-class Base():
-	class ProgressIndicator():
+class Base(object):
+	class ProgressIndicator(object):
 		def __init__(self): pass
 		def start(self, msg, cnt): pass
 		def next(self): pass
 		def stop(self): pass
-	class Vector2d():
+	class Vector2d(object):
 		def __init__(self, x=0, y=0):
 			self.x = x
 			self.y = y
 
-class BoundBox():
+class BoundBox(object):
 	def __init__(self, p1, p2):
 		self.p1 = p1
 		self.p2 = p2

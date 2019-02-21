@@ -11,7 +11,7 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
 
-class ViewObject():
+class ViewObject(object):
 	def __init__(self, obj):
 		self.DisplayMode  = None
 		self.DrawStyle    = None
@@ -29,7 +29,7 @@ class ViewObject():
 	def show(self):
 		pass
 
-class DocumentObjectGroup():
+class DocumentObjectGroup(object):
 	def __init__(self, name = ''):
 		self.name = name
 		self.objects = []
@@ -38,6 +38,6 @@ class DocumentObjectGroup():
 	def addObject(self, obj, name = None):
 		self.objects.append(obj)
 
-class ShapeMaterial():
+class ShapeMaterial(object):
 	def __init__(self):
 		return
