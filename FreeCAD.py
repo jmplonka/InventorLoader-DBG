@@ -220,7 +220,7 @@ class Document(object):
 		self.filename = label
 		self.Label = label
 		self.Name  = label
-		self.Objects = {}
+		self._objects = {}
 
 	def recompute(self):
 		return True
@@ -228,22 +228,25 @@ class Document(object):
 	def addObject(self, className, name):
 		try:
 			obj = ClassFactory(className, name)
-			self.Objects[name]= obj
+			self._objects[name]= obj
 			return obj
 		except:
 			Console.PrintError('>E: ' + traceback.format_exc())
 	def removeObject(self, obj):
-		if obj in self.Objects:
-			del self.Objects[obj]
+		if obj in self._objects:
+			del self._objects[obj]
 			return True
 		return False
 
 	def getObject(self, name):
 		key = _getObjectName(name) # can't use from InventorViewProviders because of circular import
 		try:
-			return self.Objects[key]
+			return self._objects[key]
 		except:
 			return None
+	@property
+	def Objects(self):
+		return self._objects.values()
 
 class Placement(object):
 	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):
