@@ -4,7 +4,7 @@
 Part.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD import Placement as PLC, Vector as VEC, Quantity, BoundBox
+from FreeCAD import Placement as PLC, Vector as VEC, Matrix as MAT, Quantity, BoundBox
 from App     import ViewObject
 from random  import randint
 from uuid    import uuid1
@@ -55,6 +55,27 @@ def PyObject_Not(val):
 
 def makeSweepSurface(path, profile, factor = 0.0):
 	return Face([profile])
+
+def __valueAtEllipse__(ra, rb, center, axis, u):
+	x = VEC(cos(u) * ra, sin(u) * rb, 0)
+	theta = axis.getAngle(VEC(0,0,1))
+	n = axis.cross(VEC(0,0,1))
+	if (n.Length > 0):
+		n = n.normalize()
+	else:
+		n = VEC(0,1,0)
+	a = cos(theta/2)
+	p = n*sin(theta/2)
+	b = p.x
+	c = p.y
+	d = p.z
+	aa, bb, cc, dd = a*a, b*b, c*c, d*d
+	bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
+	m = MAT(aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac), 0,
+			2*(bc-ad), aa+cc-bb-dd, 2*(cd+ab), 0,
+			2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc, 0,
+			0, 0, 0, 1)
+	return center + m.multiply(x)
 
 class AbstractPart(object):
 	def __init__(self, name, edges = [], wires = []):
@@ -236,19 +257,7 @@ class Circle(Conic):
 			major.normalize()
 		return self.Center + major * self.Radius
 	def value(self, u): # 0..2pi
-		x = VEC(cos(u) * self.Radius, sin(u) * self.Radius, 0)
-		a = self.Axis.getAngle(VEC(0,0,1))
-		n = self.Axis.cross(VEC(0,0,1))
-		if (n.Length > 0):
-			n = n.normalize()
-		else:
-			n = VEC(0,1,0)
-		v_0 = n*(n * x)
-		v_1 = (n.cross(x)).cross(n) * sin(a)
-		v_2 = (n.cross(x))*sin(a)
-		v = self.Center + v_0 + v_1 + v_2
-
-		return v
+		return __valueAtEllipse__(self.Radius, self.Radius, self.Center, self.Axis, u)
 
 class Ellipse(Conic):
 	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
@@ -260,18 +269,7 @@ class Ellipse(Conic):
 	def StartPoint(self):
 		return self.Center + self.XAxis
 	def value(self, u): # 0..2pi
-		x = sin(u) * self.MajorRadius
-		y = cos(u) * self.MinorRadius
-		n = VEC(0,0,1)
-		a = self.Axis.getAngle(n)
-		v = VEC(x, y, 0)
-		r = self.Axis.cross(n)
-		r = r.normalize()
-		x_parallel = (r*x)*r
-		x_perpendicular = x-x_parallel
-		x = x_parallel + x_perpendicular*cos(a) + n.cross(x_perpendicular)*sin(a)
-		v = c + v
-		return v
+		return __valueAtEllipse__(self.MajorRadius, self.MinorRadius, self.Center, self.Axis, u)
 
 class ArcOfConic(Curve):
 	def __init__(self, name, part, radA, radB):
@@ -332,16 +330,7 @@ class Shape(PyObjectBase):
 		if (self._edges is not None): return self._edges
 		if (self._wires is not None): self._edges = [e for w in self._wires for e in w.Edges]
 		elif (self._faces is not None): self._edges = [e for f in self._faces for e in f.Edges]
-		else:
-			self._edges = []
-#			r  = 7.5
-#			x  = 3.198144353947543
-#			z  = 6.783942267687237
-#			c  = VEC(0,0,0)
-#			d1 = VEC(0,1,0)
-#			d2 = VEC(-0.904526, 0, -0.426419)
-#			self.edges.append(makeCircle(r, c, d1, 244.75946975372221, 424.7594697537222))
-#			self.edges.append(makeCircle(r, c, d2, 244.75946975372221, 424.7594697537222))
+		else: self._edges = []
 		return self._edges
 
 	@property
@@ -658,7 +647,6 @@ class Prism(AbstractPart):
 class Revolution(AbstractPart):
 	def __init__(self):
 		super(Revolution, self).__init__('Revolution')
-
 class Torus(AbstractPart):
 	def __init__(self):
 		super(Torus, self).__init__('Torus')
