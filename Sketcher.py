@@ -24,9 +24,18 @@ class SketchObject(object):
 		self.Name = name
 		self.Constraint = []
 		self.Geometry = []
-		self.Placement = Placement()
+		self._placement = Placement()
 		self.ViewObject = ViewObject(self)
-		self.Shape = Shape()
+		self.Shape = Shape(edges=[])
+
+	@property
+	def Placement(self):
+		return self._placement
+	@Placement.setter
+	def Placement(self, plc):
+		self._placement = plc
+		for edge in self.Shape.Edges:
+			edge.Placement = plc
 
 	@property
 	def GeometryCount(self):
@@ -45,7 +54,7 @@ class SketchObject(object):
 		index = len(self.Geometry)
 		self.Geometry.append(geometry)
 		geometry.Construction = mode
-		self.Shape.Edges.append(geometry)
+		self.Shape._edges.append(geometry.toShape())
 		return index
 
 	def exposeInternalGeometry(self, index):

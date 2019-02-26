@@ -8,7 +8,7 @@ from FreeCAD import Placement as PLC, Vector as VEC, Quantity, BoundBox
 from App     import ViewObject
 from random  import randint
 from uuid    import uuid1
-from math    import radians
+from math    import radians, sin, cos, pi
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -24,7 +24,7 @@ def makeTorus(major, minor, center, axis):
 	return Toroid(major, minor, center, axis).toShape()
 
 def makeCircle(radius, center, normal, start=None, end=None):
-	circle = Circle(center, normal, radius).toShape()
+	circle = Circle(center, normal, radius)
 	if (start is not None and end is not None):
 		circle = ArcOfCircle(circle, radians(start), radians(end))
 	return circle.toShape()
@@ -62,7 +62,7 @@ class AbstractPart(object):
 		self.Label = name
 		self.ViewObject   = ViewObject(self)
 		self.Base         = None
-		self.Placement    = PLC()
+		self._placement    = PLC()
 		self.Construction = False
 		self._edges       = edges
 		self._wires       = wires
@@ -89,6 +89,10 @@ class AbstractPart(object):
 		self._shape = shape
 	def addProperty(self, typeName, name, group, description):
 		setattr(self, name, None)
+	@property
+	def Placement(self): return self._placement
+	@Placement.setter
+	def Placement(self, plc): self._placement = plc
 
 class PyObjectBase(AbstractPart):
 	def __init__(self, name, edges = [], wires = []):
@@ -102,7 +106,6 @@ class Geometry(PyObjectBase):
 		self._Tag = uuid1().__str__()
 		self.Construction = False
 		self.Continuity = 'CN'
-		self.Placement    = PLC()
 	@property
 	def Tag(self): return self._Tag
 	def translate(self, vec): return
@@ -145,25 +148,25 @@ class Point(Geometry):
 	def translate(self, trans):
 		self.vector += trans
 	def toShape(self):
-		shape = Vertex(self)
-		shape.Point = self
-		return shape
+		return Vertex(self)
 
 class Curve(Geometry):
 	def __init__(self, name, edges = [], wires = []):
 		super(Curve, self).__init__(name, edges, wires)
-	def toShape(self):
-		return Edge(curve=self)
 	def parameter(self, p):
 		return 0.0
+	def toShape(self):
+		v1 = Vertex(self.value(self.FirstParameter))
+		v2 = Vertex(self.value(self.LastParameter))
+		shape = Edge([v1, v2], self)
+		return shape
 
 class Line(Curve):
 	def __init__(self, Location=VEC(0,0,0), Direction=VEC(0,0,1)):
 		super(Line, self).__init__('Line')
 		self.Location       = Location
 		self.Direction      = Direction
-		self.FirstParameter = Location.Length
-		self.LastParameter  = Direction.Length
+		self.setParameterRange(0, Direction.Length)
 	def setParameterRange(self, first, last):
 		self.FirstParameter = first
 		self.LastParameter  = last
@@ -191,28 +194,34 @@ class LineSegment(Curve):
 	@property
 	def StartPoint(self):
 		return self.Location
+	def value(self, p):
+		dir = self.EndPoint - self.Location
+		return self.Location + (dir * p)
+	def toShape(self):
+		shape = Edge([Vertex(self.Location), Vertex(self.EndPoint)], self)
+		return shape
 
 class BezierCurve(Curve):
 	def __init__(self):
 		super(BezierCurve, self).__init__('BezierCurve')
 		self.poles = []
-
 	def setPoles(self, poles): self.poles = poles
 	def getPoles(self): return self.poles
 	@property
 	def StartPoint(self):
 		return self.poles[0]
+	def toShape(self):
+		shape = Edge([Vertex(v) for v in self.poles], self)
+		return shape
 
 class Conic(Curve):
 	def __init__(self, name, center, normal):
 		super(Conic, self).__init__(name)
 		self.Center = center
 		self.Axis   = normal
-		self.Angle0 = 0.00
-		self.Angle1 = 360.00
-	@property
-	def StartPoint(self):
-		return self.Center
+		self.Angle0 = 0 * pi
+		self.Angle1 = 2 * pi
+	def toShape(self):   return Edge([Vertex(self.StartPoint)], self)
 
 class Circle(Conic):
 	def __init__(self, center = VEC(0,0,0), normal = VEC(0,0,1), radius = 2.0):
@@ -221,8 +230,25 @@ class Circle(Conic):
 	@property
 	def StartPoint(self):
 		major = self.Axis.cross(VEC(0,1,0))
-		major.normalize()
-		return self.Center + major() * self.Radius
+		if (major.Length == 0):
+			major = VEC(1,0,0)
+		else:
+			major.normalize()
+		return self.Center + major * self.Radius
+	def value(self, u): # 0..2pi
+		x = VEC(cos(u) * self.Radius, sin(u) * self.Radius, 0)
+		a = self.Axis.getAngle(VEC(0,0,1))
+		n = self.Axis.cross(VEC(0,0,1))
+		if (n.Length > 0):
+			n = n.normalize()
+		else:
+			n = VEC(0,1,0)
+		v_0 = n*(n * x)
+		v_1 = (n.cross(x)).cross(n) * sin(a)
+		v_2 = (n.cross(x))*sin(a)
+		v = self.Center + v_0 + v_1 + v_2
+
+		return v
 
 class Ellipse(Conic):
 	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
@@ -233,6 +259,19 @@ class Ellipse(Conic):
 	@property
 	def StartPoint(self):
 		return self.Center + self.XAxis
+	def value(self, u): # 0..2pi
+		x = sin(u) * self.MajorRadius
+		y = cos(u) * self.MinorRadius
+		n = VEC(0,0,1)
+		a = self.Axis.getAngle(n)
+		v = VEC(x, y, 0)
+		r = self.Axis.cross(n)
+		r = r.normalize()
+		x_parallel = (r*x)*r
+		x_perpendicular = x-x_parallel
+		x = x_parallel + x_perpendicular*cos(a) + n.cross(x_perpendicular)*sin(a)
+		v = c + v
+		return v
 
 class ArcOfConic(Curve):
 	def __init__(self, name, part, radA, radB):
@@ -241,45 +280,35 @@ class ArcOfConic(Curve):
 		self.radA = radA
 		self.radB = radB
 	@property
-	def StartPoint(self):
-		return self.part.StartPoint
+	def StartPoint(self):     return self.part.StartPoint
 	@property
-	def Center(self):
-		return self.part.Center
+	def Center(self):         return self.part.Center
 	@property
-	def Axis(self):
-		return self.part.Axis
+	def Axis(self):           return self.part.Axis
 	@property
-	def FirstParameter(self):
-		return self.radA
+	def FirstParameter(self): return self.radA
 	@property
-	def LastParameter(self):
-		return self.radA
+	def LastParameter(self):  return self.radB
+	def value(self, u):       return self.part.value(u)
 
 class ArcOfCircle(ArcOfConic):
 	def __init__(self, part, radA, radB):
 		super(ArcOfCircle, self).__init__('ArcOfCircle', part, radA, radB)
 	@property
-	def Radius(self):
-		if (isinstance(self.part, VEC)):
-			return (self.radA - self.radB).Length
-		return (self.part).Radius
+	def Radius(self): return self.part.Radius
 	@property
-	def Circle(self):
-		return self.part
-
+	def Circle(self): return self.part
+	def toShape(self):
+		return super(ArcOfCircle, self).toShape()
 class ArcOfEllipse(ArcOfConic):
 	def __init__(self, part, radA, radB):
 		super(ArcOfEllipse, self).__init__('ArcOfEllipse', part, radA, radB)
 	@property
-	def MajorRadius(self):
-		return self.part.MajorRadius
+	def MajorRadius(self): return self.part.MajorRadius
 	@property
-	def MinorRadius(self):
-		return self.part.MinorRadius
+	def MinorRadius(self): return self.part.MinorRadius
 	@property
-	def Ellipse(self):
-		return self.part
+	def Ellipse(self):     return self.part
 
 class Shape(PyObjectBase):
 	def __init__(self, edges = None, wires = None, faces = None, vertexes = None):
@@ -301,9 +330,20 @@ class Shape(PyObjectBase):
 	@property
 	def Edges(self):
 		if (self._edges is not None): return self._edges
-		if (self._wires is not None): return [e for w in self._wires for e in w.Edges]
-		if (self._faces is not None): return [e for f in self._faces for e in f.Edges]
-		return []
+		if (self._wires is not None): self._edges = [e for w in self._wires for e in w.Edges]
+		elif (self._faces is not None): self._edges = [e for f in self._faces for e in f.Edges]
+		else:
+			self._edges = []
+#			r  = 7.5
+#			x  = 3.198144353947543
+#			z  = 6.783942267687237
+#			c  = VEC(0,0,0)
+#			d1 = VEC(0,1,0)
+#			d2 = VEC(-0.904526, 0, -0.426419)
+#			self.edges.append(makeCircle(r, c, d1, 244.75946975372221, 424.7594697537222))
+#			self.edges.append(makeCircle(r, c, d2, 244.75946975372221, 424.7594697537222))
+		return self._edges
+
 	@property
 	def Wires(self):
 		if (self._edges is not None): return [Wire(self._edges)]
@@ -352,20 +392,38 @@ class Shape(PyObjectBase):
 class Vertex(Shape):
 	def __init__(self, point):
 		super(Vertex, self).__init__(None,None,None,[self])
+		self._point = point
+		self._placement = PLC()
+	def __repr__(self): return "Vertex: %s" %(self.Point)
+	@property
+	def Point(self):
+		return self._placement.toMatrix().multiply(self._point)
+	@Point.setter
+	def Point(self, point):
+		self._point = point
 
 class Edge(Shape):
 	def __init__(self, vertexes = None, curve = None):
-		super(Edge, self).__init__(None,None,None,None)
-		self.vertices = vertexes
+		super(Edge, self).__init__([self],None,None,vertexes)
 		self.Curve = curve
-		if (self.Curve):
-			self.vertices = getattr(curve, 'Points', None)
-	def valueAt(self, value):
-		return VEC(value, value, value)
-	def normalAt(self, value):
-		return VEC(1, 0, 0)
-	def tangentAt(self, value):
-		return VEC(0, -1, 0)
+		self._placement = PLC()
+
+	def valueAt(self, value):   return VEC(value, value, value)
+	def normalAt(self, value):  return VEC(1, 0, 0)
+	def tangentAt(self, value): return VEC(0, -1, 0)
+	def firstVertex(self):      return self.vertices[0]
+	def lastVertex(self):       return self.vertices[-1]
+	@property
+	def Degenerated(self): return False
+	@property
+	def Placement(self):
+		return self._placement
+	@Placement.setter
+	def Placement(self, plc):
+		self._placement = plc
+		if (self.Vertexes is not None):
+			for v in self.Vertexes:
+				v.Placement = plc
 class Wire(Shape):
 	def __init__(self, edges):
 		super(Wire, self).__init__(edges, None, None, None)
@@ -405,6 +463,7 @@ class GeometrySurface(Geometry):
 		return shape
 	def parameter(self, point):
 		return 0.0, 0.0
+
 class Cone(GeometrySurface):
 	def __init__(self):
 		super(Cone, self).__init__(name = 'Cone')
@@ -497,6 +556,10 @@ class BSplineCurve(Curve):
 	@property
 	def StartPoint(self):
 		return self._poles[0]
+	def toShape(self):
+		shape = Edge([Vertex(p) for p in self._poles], self)
+		return shape
+
 class BSplineSurface(GeometrySurface):
 	def __init__(self):
 		super(BSplineSurface, self).__init__('BSplineSurface')

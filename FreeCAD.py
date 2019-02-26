@@ -175,8 +175,14 @@ class Vector(object):
 
 	def __add__(self, other):  return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
 	def __sub__(self, other):  return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
-	def __mul__(self, other):  return Vector(self.x * other, self.y * other, self.z * other)
-	def __rmul__(self, other): return Vector(self.x * other, self.y * other, self.z * other)
+	def __mul__(self, other):
+		if (isinstance(other, Vector)):
+			return self.x * other.x + self.y * other.y + self.z * other.z
+		return Vector(self.x * other, self.y * other, self.z * other)
+	def __rmul__(self, other):
+		if (isinstance(other, Vector)):
+			return self.x * other.x + self.y * other.y + self.z * other.z
+		return Vector(self.x * other, self.y * other, self.z * other)
 
 class Rotation(object):
 	def __init__(self, axis, angle, z=0.0, w=0.0):
