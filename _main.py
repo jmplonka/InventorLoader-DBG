@@ -3,7 +3,6 @@
 import os, sys, tempfile, traceback, gc
 import importerIL, importerSAT, importerUtils
 from Acis2Step import *
-from FreeCAD import Matrix as MAT
 
 def importFolder(p, e):
 	for root, folders, files in os.walk(p):
@@ -28,7 +27,7 @@ if __name__ == '__main__':
 				importerUtils.setLoggingWarn(False)
 				importFolder(file, ".ipt")
 			else:
-				importerUtils.setLoggingWarn(True)
+				importerUtils.setLoggingWarn(False)
 				importerIL.open(file)
 	else:
 		# TODO:
@@ -50,13 +49,15 @@ if __name__ == '__main__':
 
 		importerUtils.__strategy__ = importerUtils.STRATEGY_STEP
 #		importFolder(u"../3rdParty", ".ipt")
-#		importFolder(u"../Demo-Status", ".ipt")
+		importFolder(u"../Demo-Status", ".sat")
+		importFolder(u"../Demo-Status", ".ipt")
 #		importFolder(u"../intersection", ".ipt")
 #		importFolder(u"../private", ".ipt")
 #		importFolder(u"../pro", ".ipt")
 #		importFolder(u"../SAT", ".sat")
 #		importFolder(u"../test", ".ipt")
 #		importFolder(u"../tutorials", ".ipt")
+
 		importerUtils.__strategy__ = importerUtils.STRATEGY_SAT
 #		importFolder(u"../3rdParty", ".ipt")
 #		importFolder(u"../Demo-Status", ".ipt")
@@ -66,21 +67,14 @@ if __name__ == '__main__':
 #		importFolder(u"../SAT", ".sat")
 #		importFolder(u"../test", ".ipt")
 #		importFolder(u"../tutorials", ".ipt")
+
 		importerUtils.__strategy__ = importerUtils.STRATEGY_NATIVE
 #		importFolder(u"../3rdParty", ".ipt")
-#		importFolder(u"../Demo-Status", ".ipt")
-#		importFolder(u"../intersection", "_Rest.ipt")
+		importFolder(u"../Demo-Status", ".sat")
+		importFolder(u"../Demo-Status", ".ipt")
+#		importFolder(u"../intersection", ".ipt")
 #		importFolder(u"../private", ".ipt")
 #		importFolder(u"../pro", ".ipt")
 #		importFolder(u"../tutorials", ".ipt")
+#		importFolder(u"../test", ".ipt")
 
-#		importFolder(u"../test/", ".ipt")
-
-		importerIL.open(u"../test/FxFillets/Fillet_Face_2mm.ipt")
-
-#		import importerOle10Nateive
-#		ole = importerOle10Nateive.olenative()
-#		with open(u"C:/Users/pln2si/Desktop/[1]Ole10Native", 'rb') as oleFile:
-#			data = oleFile.read()
-#			ole.read(data)
-#			print(ole.getDict())

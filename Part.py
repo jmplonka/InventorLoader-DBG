@@ -59,16 +59,14 @@ def makeSweepSurface(path, profile, factor = 0.0):
 def __valueAtEllipse__(ra, rb, center, axis, u):
 	x = VEC(cos(u) * ra, sin(u) * rb, 0)
 	theta = axis.getAngle(VEC(0,0,1))
-	n = axis.cross(VEC(0,0,1))
-	if (n.Length > 0):
-		n = n.normalize()
-	else:
-		n = VEC(0,1,0)
+	n = VEC(0,0,1).cross(axis)
+	if (n.Length == 0):
+		return x
+	n = n.normalize()
 	a = cos(theta/2)
-	p = n*sin(theta/2)
-	b = p.x
-	c = p.y
-	d = p.z
+	b = n.x*sin(theta/2)
+	c = n.y*sin(theta/2)
+	d = n.z*sin(theta/2)
 	aa, bb, cc, dd = a*a, b*b, c*c, d*d
 	bc, ad, ac, ab, bd, cd = b*c, a*d, a*c, a*b, b*d, c*d
 	m = MAT(aa+bb-cc-dd, 2*(bc+ad), 2*(bd-ac), 0,
@@ -114,6 +112,7 @@ class AbstractPart(object):
 	def Placement(self): return self._placement
 	@Placement.setter
 	def Placement(self, plc): self._placement = plc
+	def __repr__(self): return str(self)
 
 class PyObjectBase(AbstractPart):
 	def __init__(self, name, edges = [], wires = []):
@@ -186,8 +185,9 @@ class Line(Curve):
 	def __init__(self, Location=VEC(0,0,0), Direction=VEC(0,0,1)):
 		super(Line, self).__init__('Line')
 		self.Location       = Location
-		self.Direction      = Direction
-		self.setParameterRange(0, Direction.Length)
+		self.Direction      = Direction - Location
+		self.setParameterRange(0, self.Direction.Length)
+		self.Direction.normalize()
 	def setParameterRange(self, first, last):
 		self.FirstParameter = first
 		self.LastParameter  = last
@@ -196,6 +196,7 @@ class Line(Curve):
 	@property
 	def StartPoint(self):
 		return self.Location
+	def __str__(self):  return '%s: %s, %s' %(self.__class__.__name__, self.Location, self.value(self.LastParameter))
 
 class LineSegment(Curve):
 	def __init__(self, vector1, vector2):
@@ -221,6 +222,7 @@ class LineSegment(Curve):
 	def toShape(self):
 		shape = Edge([Vertex(self.Location), Vertex(self.EndPoint)], self)
 		return shape
+	def __str__(self):  return '%s: %s, %s' %(self.__class__.__name__, self.Location, self.EndPoint)
 
 class BezierCurve(Curve):
 	def __init__(self):
@@ -258,6 +260,7 @@ class Circle(Conic):
 		return self.Center + major * self.Radius
 	def value(self, u): # 0..2pi
 		return __valueAtEllipse__(self.Radius, self.Radius, self.Center, self.Axis, u)
+	def __str__(self):  return '%s: %s, %s, %g' %(self.__class__.__name__, self.Center, self.Axis, self.Radius)
 
 class Ellipse(Conic):
 	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
@@ -270,6 +273,7 @@ class Ellipse(Conic):
 		return self.Center + self.XAxis
 	def value(self, u): # 0..2pi
 		return __valueAtEllipse__(self.MajorRadius, self.MinorRadius, self.Center, self.Axis, u)
+	def __str__(self):  return '%s: %s, %s, %g, %g' %(self.__class__.__name__, self.Center, self.Axis, self.MajorRadiu, self.MinorRadius)
 
 class ArcOfConic(Curve):
 	def __init__(self, name, part, radA, radB):
@@ -293,11 +297,17 @@ class ArcOfCircle(ArcOfConic):
 	def __init__(self, part, radA, radB):
 		super(ArcOfCircle, self).__init__('ArcOfCircle', part, radA, radB)
 	@property
+	def Center(self): return self.part.Center
+	@property
+	def Axis(self):   return self.part.Axis
+	@property
 	def Radius(self): return self.part.Radius
 	@property
 	def Circle(self): return self.part
 	def toShape(self):
 		return super(ArcOfCircle, self).toShape()
+	def __str__(self):  return '%s, %s, %s, %g, %s, %s' %(self.__class__.__name__, self.Center, self.Axis, self.Radius, self.FirstParameter, self.LastParameter)
+
 class ArcOfEllipse(ArcOfConic):
 	def __init__(self, part, radA, radB):
 		super(ArcOfEllipse, self).__init__('ArcOfEllipse', part, radA, radB)
@@ -307,6 +317,7 @@ class ArcOfEllipse(ArcOfConic):
 	def MinorRadius(self): return self.part.MinorRadius
 	@property
 	def Ellipse(self):     return self.part
+	def __str__(self):  return '%s, %s, %s ,%g, %g, %s, %s' %(self.__class__.__name__, self.Center, self.Axis, self.MajorRadius, self.MinorRadius, self.FirstParameter, self.LastParameter)
 
 class Shape(PyObjectBase):
 	def __init__(self, edges = None, wires = None, faces = None, vertexes = None):
@@ -413,6 +424,8 @@ class Edge(Shape):
 		if (self.Vertexes is not None):
 			for v in self.Vertexes:
 				v.Placement = plc
+	def __repr__(self):
+		return u"Edge: %s, %s, %s" %(self.firstVertex().Point, self.lastVertex().Point, self.Curve)
 class Wire(Shape):
 	def __init__(self, edges):
 		super(Wire, self).__init__(edges, None, None, None)
@@ -647,6 +660,16 @@ class Prism(AbstractPart):
 class Revolution(AbstractPart):
 	def __init__(self):
 		super(Revolution, self).__init__('Revolution')
+		x  = 3.198144353947543
+		z  = 6.783942267687237
+		c  = VEC(0,0,0)
+		a  = 244.75946975372221
+		b  = 424.7594697537222
+		c1 = makeCircle(7.5, c, VEC(0,1,0), a, b)
+		c2 = makeCircle(7.5, c, VEC(-0.904526, 0, -0.426419), a, b)
+		c1.vertices = c2.vertices = [Vertex(VEC(x,0,-z)), Vertex(VEC(-x,0,z))]
+		c3 = makeLine(VEC(-x, 0, z), VEC( x, 0,-z))
+		self.Shape._edges = [c1, c2, c3]
 class Torus(AbstractPart):
 	def __init__(self):
 		super(Torus, self).__init__('Torus')
