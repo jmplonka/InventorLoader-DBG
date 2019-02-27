@@ -639,7 +639,7 @@ class SurfaceOfRevolution(GeometrySurface):
 
 class Chamfer(AbstractPart):
 	def __init__(self):
-		super(Chamfer, self).__init__('Chamfer', [0,1,2,3,4,5], [0,1,2,3,4])
+		super(Chamfer, self).__init__('Chamfer')
 
 class Extrusion(AbstractPart):
 	def __init__(self):
@@ -648,7 +648,7 @@ class Extrusion(AbstractPart):
 
 class Fillet(AbstractPart):
 	def __init__(self):
-		super(Fillet, self).__init__('Fillet', [0,1,2,3,4,5,6,7,8], [0,1,2,3,4])
+		super(Fillet, self).__init__('Fillet')
 
 class Prism(AbstractPart):
 	def __init__(self):
