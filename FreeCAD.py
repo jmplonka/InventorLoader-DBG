@@ -7,6 +7,7 @@ Wrapper class for better comparability with FreeCAD plugin branch
 
 import os, sys, traceback, xml.etree.ElementTree, re
 from math                  import sqrt, acos
+import numpy as np
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -30,6 +31,9 @@ def newDocument(label):
 
 def Version():
 	return ['0', '16', 'Unknown', 'Unknown', 'Unknown']
+
+def unit_vector(vector):
+	return vector / np.linalg.norm(vector)
 
 def ConfigGet(name):
 	if (name == 'BuildVersionMajor'): return 0
@@ -135,6 +139,10 @@ class Vector(object):
 			self.x = x.x
 			self.y = x.y
 			self.z = x.z
+		elif ((type(x) == tuple) or (type(x) == list)):
+			self.x = x[0]
+			self.y = x[1]
+			self.z = x[2]
 		else:
 			self.x = float(x)
 			self.y = float(y)
@@ -159,17 +167,10 @@ class Vector(object):
 			self.z = self.z / l
 			return self
 		raise FreeCADError("Cannot normalize null vector")
-	def getAngle(self, a):
-		x2 = self.x * a.x
-		y2 = self.y * a.y
-		z2 = self.z * a.z
-		n = x2 + y2 + z2
-		z = self.Length * a.Length
-		try:
-			return acos(n/z)
-		except:
-			return 0.0
-
+	def getAngle(self, other):
+		v1_u = unit_vector((self.x, self.y, self.z))
+		v2_u = unit_vector((other.x, other.y, other.z))
+		return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 	@property
 	def Length(self): return sqrt(self.x**2 + self.y**2 + self.z**2)
 
@@ -183,6 +184,8 @@ class Vector(object):
 		if (isinstance(other, Vector)):
 			return self.x * other.x + self.y * other.y + self.z * other.z
 		return Vector(self.x * other, self.y * other, self.z * other)
+	def __div__(self, other):
+		return Vector(self.x / other, self.y / other, self.z / other)
 
 class Rotation(object):
 	def __init__(self, axis, angle, z=0.0, w=0.0):

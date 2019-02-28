@@ -8,7 +8,8 @@ from FreeCAD import Placement as PLC, Vector as VEC, Matrix as MAT, Quantity, Bo
 from App     import ViewObject
 from random  import randint
 from uuid    import uuid1
-from math    import radians, sin, cos, pi
+from math    import radians, sin, cos, pi, sqrt
+import numpy as np
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -244,6 +245,15 @@ class Conic(Curve):
 		self.Axis   = normal
 		self.Angle0 = 0 * pi
 		self.Angle1 = 2 * pi
+	def parameter(self, vector):
+		x =  self.StartPoint - self.Center
+		y = vector - self.Center
+		n = self.Axis
+		angle = x.getAngle(y)
+		det =  n*(x.cross(y))
+		if (det < 0):
+			return 2*pi - angle
+		return angle
 	def toShape(self):   return Edge([Vertex(self.StartPoint)], self)
 
 class Circle(Conic):
@@ -252,7 +262,7 @@ class Circle(Conic):
 		self.Radius = radius
 	@property
 	def StartPoint(self):
-		major = self.Axis.cross(VEC(0,1,0))
+		major = VEC(0,1,0).cross(self.Axis)
 		if (major.Length == 0):
 			major = VEC(1,0,0)
 		else:
@@ -268,6 +278,8 @@ class Ellipse(Conic):
 		self.vecC = vecC
 		self.MajorRadius = 2.0
 		self.MinorRadius = 1.0
+		self.XAxis = VEC(1,0,0)
+		self.YAxis = VEC(0,1,0)
 	@property
 	def StartPoint(self):
 		return self.Center + self.XAxis
@@ -292,10 +304,31 @@ class ArcOfConic(Curve):
 	@property
 	def LastParameter(self):  return self.radB
 	def value(self, u):       return self.part.value(u)
-
+	def parameter(self, p):   return self.part.parameter(p)
 class ArcOfCircle(ArcOfConic):
 	def __init__(self, part, radA, radB):
-		super(ArcOfCircle, self).__init__('ArcOfCircle', part, radA, radB)
+		if (isinstance(radA, VEC)):
+			A = part
+			B = radA
+			C = radB
+			a = (B - C).Length
+			b = (C - A).Length
+			c = (A - B).Length
+			s = (a + b + c) / 2
+			radius = a*b*c / 4 / sqrt(s * (s - a) * (s - b) * (s - c))
+			b1 = a*a * (b*b + c*c - a*a)
+			b2 = b*b * (a*a + c*c - b*b)
+			b3 = c*c * (a*a + b*b - c*c)
+			P = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
+			P /= (b1 + b2 + b3)
+			center = VEC(P.tolist()[0])
+			axis = (A-C).cross(B-C).normalize()
+			circle = Circle(center, axis, radius)
+			a = circle.parameter(A)
+			b = circle.parameter(B)
+			super(ArcOfCircle, self).__init__('ArcOfCircle', circle, a, b)
+		else:
+			super(ArcOfCircle, self).__init__('ArcOfCircle', part, radA, radB)
 	@property
 	def Center(self): return self.part.Center
 	@property
@@ -304,8 +337,6 @@ class ArcOfCircle(ArcOfConic):
 	def Radius(self): return self.part.Radius
 	@property
 	def Circle(self): return self.part
-	def toShape(self):
-		return super(ArcOfCircle, self).toShape()
 	def __str__(self):  return '%s, %s, %s, %g, %s, %s' %(self.__class__.__name__, self.Center, self.Axis, self.Radius, self.FirstParameter, self.LastParameter)
 
 class ArcOfEllipse(ArcOfConic):
