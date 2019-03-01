@@ -14,32 +14,6 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
 
-def makePoint(x, y, z):
-	return Point(x, y, z)
-
-def makeWire(points, closed = False, face = True, support = None):
-	edges = []
-	i = 0
-	for j in range(1, len(points)):
-		edges.append(Edge(points[i:j]))
-		i = j
-	wire = Wire(edges)
-	wire.vertexes = points
-	return wire
-
-def makeCircle(radius, placement, face = False, startAngle = 0, endAngle = 2*pi):
-	return Circle(radius, placement, face, startAngle, endAngle)
-
-def makeBSpline(points, closed = False, face = True, support = None):
-	return BSpline(points, closed, face, support)
-
-class BSpline(object):
-	def __init__(self, points, closed = False, face = False, support = None):
-		self.points  = points
-		self.closed  = closed
-		self.face    = face
-		self.support = support
-
 def makeArray(baseobject, arg1, arg2, arg3, arg4=None, name="Array"):
     '''makeArray(object, xvector, yvector, xnum, ynum, [name]) for rectangular array, or
     makeArray(object,center,totalangle,totalnum,[name]) for polar array: Creates an array

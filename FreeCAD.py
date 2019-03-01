@@ -186,6 +186,8 @@ class Vector(object):
 		return Vector(self.x * other, self.y * other, self.z * other)
 	def __div__(self, other):
 		return Vector(self.x / other, self.y / other, self.z / other)
+	def __truediv__(self, other):
+		return Vector(self.x / other, self.y / other, self.z / other)
 
 class Rotation(object):
 	def __init__(self, axis, angle, z=0.0, w=0.0):
