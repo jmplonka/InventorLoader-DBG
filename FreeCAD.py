@@ -33,7 +33,10 @@ def Version():
 	return ['0', '16', 'Unknown', 'Unknown', 'Unknown']
 
 def unit_vector(vector):
-	return vector / np.linalg.norm(vector)
+	l = np.linalg.norm(vector)
+	if (l != 0):
+		return vector / l
+	return vector
 
 def ConfigGet(name):
 	if (name == 'BuildVersionMajor'): return 0
