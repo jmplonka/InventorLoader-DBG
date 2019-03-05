@@ -369,3 +369,25 @@ class BoundBox(object):
 class FreeCADError(AssertionError):
 	def __init__(self, *args):
 		super(FreeCADError, self).__init__(*args)
+
+class ShapeMaterial(object):
+	def __init__(self):
+		return
+
+class ViewObject(object):
+	def __init__(self, obj):
+		self.DisplayMode  = None
+		self.DrawStyle    = None
+		self.Lighting     = None
+		self.LineColor    = None
+		self.LineWidth    = None
+		self.Object       = obj
+		self.PointColor   = None
+		self.PointSize    = None
+		self.ShapeColor   = None
+		self.Transparency = None
+		self.ShapeMaterial = ShapeMaterial()
+	def hide(self):
+		pass
+	def show(self):
+		pass

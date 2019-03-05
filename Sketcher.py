@@ -6,8 +6,7 @@ Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
 from Part          import Point, Shape
-from FreeCAD       import Placement, Vector
-from App           import ViewObject
+from FreeCAD       import Placement, Vector, ViewObject
 from importerUtils import logError
 
 __author__      = 'Jens M. Plonka'

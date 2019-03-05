@@ -4,30 +4,11 @@
 App.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD         import Rotation, Vector
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
-
-class ViewObject(object):
-	def __init__(self, obj):
-		self.DisplayMode  = None
-		self.DrawStyle    = None
-		self.Lighting     = None
-		self.LineColor    = None
-		self.LineWidth    = None
-		self.Object       = obj
-		self.PointColor   = None
-		self.PointSize    = None
-		self.ShapeColor   = None
-		self.Transparency = None
-		self.ShapeMaterial = ShapeMaterial()
-	def hide(self):
-		pass
-	def show(self):
-		pass
 
 class DocumentObjectGroup(object):
 	def __init__(self, name = ''):
@@ -37,7 +18,3 @@ class DocumentObjectGroup(object):
 
 	def addObject(self, obj, name = None):
 		self.objects.append(obj)
-
-class ShapeMaterial(object):
-	def __init__(self):
-		return

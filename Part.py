@@ -4,8 +4,7 @@
 Part.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD import Placement as PLC, Vector as VEC, Matrix as MAT, Quantity, BoundBox
-from App     import ViewObject
+from FreeCAD import Placement as PLC, Vector as VEC, Matrix as MAT, Quantity, BoundBox, ViewObject
 from random  import randint
 from uuid    import uuid1
 from math    import radians, sin, cos, pi, sqrt
@@ -90,15 +89,14 @@ class AbstractPart(object):
 	def isDerivedFrom(self, name):
 		clsName = name[name.rfind(':'):]
 		return (clsName == self.__class__.__name__)
-
 	def setExpression(self, key, expr):
 		pass
 	def recompute(self): return
 	def rotate(self, placement): return
 	def copy(self): return self;
-	def addProperty(self, clsName, name, category, description):
+	def addProperty(self, clsName, name, category = None, description = None):
 		setattr(self, name, None) # initialize with default value
-		return
+		return self
 	@property
 	def Shape(self):
 		if (self._shape is None):
@@ -107,8 +105,6 @@ class AbstractPart(object):
 	@Shape.setter
 	def Shape(self, shape):
 		self._shape = shape
-	def addProperty(self, typeName, name, group, description):
-		setattr(self, name, None)
 	@property
 	def Placement(self): return self._placement
 	@Placement.setter
@@ -485,6 +481,10 @@ class Face(Shape):
 class Shell(Shape):
 	def __init__(self, faces = []):
 		super(Shell, self).__init__(None, None, faces, None)
+
+class Solid(Shape):
+	def __init__(self, shell):
+		super(Solid, self).__init__(shell.Edges, shell.Wires, shell.Faces, shell.Vertexes)
 
 class GeometrySurface(Geometry):
 	def __init__(self, name, edges = [], wires = []):
