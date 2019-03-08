@@ -6,8 +6,8 @@ Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
 import os, sys, traceback, xml.etree.ElementTree, re
-from math                  import sqrt, acos
 import numpy as np
+from math                  import sqrt, acos
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -142,10 +142,10 @@ class Vector(object):
 			self.x = x.x
 			self.y = x.y
 			self.z = x.z
-		elif ((type(x) == tuple) or (type(x) == list)):
-			self.x = x[0]
-			self.y = x[1]
-			self.z = x[2]
+		elif (type(x) in [tuple, list]):
+			self.x = float(x[0])
+			self.y = float(x[1])
+			self.z = float(x[2])
 		else:
 			self.x = float(x)
 			self.y = float(y)
@@ -177,8 +177,14 @@ class Vector(object):
 	@property
 	def Length(self): return sqrt(self.x**2 + self.y**2 + self.z**2)
 
-	def __add__(self, other):  return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
-	def __sub__(self, other):  return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+	def __add__(self, other):
+		if (isinstance(other, Vector)):
+			return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+		raise TypeError(u"Second arg must be Vector")
+	def __sub__(self, other):
+		if (isinstance(other, Vector)):
+			return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+		raise TypeError(u"Second arg must be Vector")
 	def __mul__(self, other):
 		if (isinstance(other, Vector)):
 			return self.x * other.x + self.y * other.y + self.z * other.z
@@ -263,7 +269,7 @@ class Document(object):
 		return self._objects.values()
 
 class Placement(object):
-	def __init__(self, base = Vector(0, 0, 0), rotation = None, offset = None):
+	def __init__(self, base = Vector(0.0, 0.0, 0.0), rotation = Rotation(Vector(0.0, 0.0, 0.0), 0.0), offset = Vector(0.0, 0.0, 0.0)):
 		if (isinstance(base, Matrix)):
 			self.Base     = Vector(base.A14, base.A24, base.A34)
 		else:

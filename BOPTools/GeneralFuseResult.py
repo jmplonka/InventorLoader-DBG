@@ -28,7 +28,7 @@ __doc__ = "Implementation of GeneralFuseResult class, which parses return of gen
 
 import Part
 from BOPTools.Utils import HashableShape, HashableShape_Deep, FrozenClass
-
+from FreeCAD        import Console
 
 class GeneralFuseResult(FrozenClass):
     """class GeneralFuseResult: helper object for obtaining info from results of
@@ -138,8 +138,7 @@ def myCustomFusionRoutine(list_of_shapes):
             # check the map was recovered successfully
             for iSource in range(len(map)):
                 if len(map[iSource]) == 0:
-                    import FreeCAD as App
-                    App.Console.PrintWarning("Map entry {num} is empty. Source-to-piece correspondence information is probably incomplete.".format(num= iSource))
+                    Console.PrintWarning("Map entry {num} is empty. Source-to-piece correspondence information is probably incomplete.".format(num= iSource))
 
         self._pieces_of_source = [[] for i in range(len(self.source_shapes))]
         self._sources_of_piece = [[] for i in range(len(self.pieces))]

@@ -4,7 +4,7 @@
 Part.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD import Placement as PLC, Vector as VEC, Matrix as MAT, Quantity, BoundBox, ViewObject
+from FreeCAD import Placement as PLC, Vector as VEC, Rotation as ROT, Matrix as MAT, Quantity, BoundBox, ViewObject
 from random  import randint
 from uuid    import uuid1
 from math    import radians, sin, cos, pi, sqrt
@@ -14,6 +14,11 @@ __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
+
+CENTER = VEC(0.0, 0.0, 0.0)
+DIR_X  = VEC(1.0, 0.0, 0.0)
+DIR_Y  = VEC(0.0, 1.0, 0.0)
+DIR_Z  = VEC(0.0, 0.0, 1.0)
 
 def makeLine(p1, p2):
 	assert type(p1) == tuple or isinstance(p1, VEC), "first argument must either be vector or tuple"
@@ -58,8 +63,8 @@ def makeSweepSurface(path, profile, factor = 0.0):
 
 def __valueAtEllipse__(ra, rb, center, axis, u):
 	x = VEC(cos(u) * ra, sin(u) * rb, 0)
-	theta = axis.getAngle(VEC(0,0,1))
-	n = VEC(0,0,1).cross(axis)
+	theta = axis.getAngle(DIR_Z)
+	n = DIR_Z.cross(axis)
 	if (n.Length == 0):
 		return x
 	n = n.normalize()
@@ -75,22 +80,29 @@ def __valueAtEllipse__(ra, rb, center, axis, u):
 			0, 0, 0, 1)
 	return center + m.multiply(x)
 
+class OCCError(Exception):
+	def __init__(self, *args):
+		return super(OCCError, self).__init__(*args)
+
 class AbstractPart(object):
 	def __init__(self, name, edges = [], wires = []):
 		self.Name = name
 		self.Label = name
 		self.ViewObject   = ViewObject(self)
 		self.Base         = None
-		self._placement    = PLC()
+		self._placement    = PLC(CENTER, ROT(DIR_Z, 0.0), CENTER)
 		self.Construction = False
 		self._edges       = edges
 		self._wires       = wires
 		self._shape       = None
+		self._expressions = {}
 	def isDerivedFrom(self, name):
 		clsName = name[name.rfind(':'):]
 		return (clsName == self.__class__.__name__)
 	def setExpression(self, key, expr):
-		pass
+		self._expressions[key] = expr
+	def getExpression(self, key):
+		return self._expressions[key]
 	def recompute(self): return
 	def rotate(self, placement): return
 	def copy(self): return self;
@@ -106,9 +118,11 @@ class AbstractPart(object):
 	def Shape(self, shape):
 		self._shape = shape
 	@property
-	def Placement(self): return self._placement
+	def Placement(self):
+		return self._placement
 	@Placement.setter
-	def Placement(self, plc): self._placement = plc
+	def Placement(self, plc):
+		self._placement = plc
 	def __repr__(self): return str(self)
 
 class PyObjectBase(AbstractPart):
@@ -179,7 +193,7 @@ class Curve(Geometry):
 		return shape
 
 class Line(Curve):
-	def __init__(self, Location=VEC(0,0,0), Direction=VEC(0,0,1)):
+	def __init__(self, Location=CENTER, Direction=DIR_Z):
 		super(Line, self).__init__('Line')
 		self.Location       = Location
 		self.Direction      = Direction - Location
@@ -253,14 +267,16 @@ class Conic(Curve):
 	def toShape(self):   return Edge([Vertex(self.StartPoint)], self)
 
 class Circle(Conic):
-	def __init__(self, center = VEC(0,0,0), normal = VEC(0,0,1), radius = 2.0):
+	def __init__(self, center = CENTER, normal = DIR_Z, radius = 2.0):
 		super(Circle, self).__init__('Circle', center, normal)
+		if (radius < 0):
+			raise OCCError(u"SetRadius() - radius should be positive number")
 		self.Radius = radius
 	@property
 	def StartPoint(self):
-		major = VEC(0,1,0).cross(self.Axis)
+		major = DIR_Y.cross(self.Axis)
 		if (major.Length == 0):
-			major = VEC(1,0,0)
+			major = DIR_X
 		else:
 			major.normalize()
 		return self.Center + major * self.Radius
@@ -269,13 +285,13 @@ class Circle(Conic):
 	def __str__(self):  return '%s: %s, %s, %g' %(self.__class__.__name__, self.Center, self.Axis, self.Radius)
 
 class Ellipse(Conic):
-	def __init__(self, vecA = VEC(0,0,0), vecB = VEC(1,0,0), vecC = VEC(0,1,0)):
+	def __init__(self, vecA = CENTER, vecB = DIR_X, vecC = DIR_Y):
 		super(Ellipse, self).__init__('Ellipse', vecA, vecB)
 		self.vecC = vecC
 		self.MajorRadius = 2.0
 		self.MinorRadius = 1.0
-		self.XAxis = VEC(1,0,0)
-		self.YAxis = VEC(0,1,0)
+		self.XAxis = DIR_X
+		self.YAxis = DIR_Y
 	@property
 	def StartPoint(self):
 		return self.Center + self.XAxis
@@ -323,6 +339,8 @@ class ArcOfCircle(ArcOfConic):
 			b = circle.parameter(B)
 			super(ArcOfCircle, self).__init__('ArcOfCircle', circle, a, b)
 		else:
+			if (radA == radB):
+				raise OCCError(u"Geom_TrimmedCurve::U1 == U2")
 			super(ArcOfCircle, self).__init__('ArcOfCircle', part, radA, radB)
 	@property
 	def Center(self): return self.part.Center
@@ -359,8 +377,8 @@ class Shape(PyObjectBase):
 		self.ViewObject   = ViewObject(self)
 	@property
 	def BoundBox(self):
-		minBB = VEC(0,0,0)
-		maxBB = VEC(1,1,1)
+		minBB = CENTER
+		maxBB = VEC(1.0, 1.0, 1.0)
 		return BoundBox(minBB, maxBB)
 	@property
 	def Edges(self):
@@ -419,7 +437,7 @@ class Vertex(Shape):
 	def __init__(self, point):
 		super(Vertex, self).__init__(None,None,None,[self])
 		self._point = point
-		self._placement = PLC()
+		self._placement = PLC(CENTER, ROT(DIR_Z, 0.0), CENTER)
 	def __repr__(self): return "Vertex: %s" %(self.Point)
 	@property
 	def Point(self):
@@ -432,11 +450,11 @@ class Edge(Shape):
 	def __init__(self, vertexes = None, curve = None):
 		super(Edge, self).__init__([self],None,None,vertexes)
 		self.Curve = curve
-		self._placement = PLC()
+		self._placement = PLC(CENTER, ROT(DIR_Z, 0.0), CENTER)
 
 	def valueAt(self, value):   return VEC(value, value, value)
-	def normalAt(self, value):  return VEC(1, 0, 0)
-	def tangentAt(self, value): return VEC(0, -1, 0)
+	def normalAt(self, value):  return DIR__X
+	def tangentAt(self, value): return -DIR_Y
 	def firstVertex(self):      return self.vertices[0]
 	def lastVertex(self):       return self.vertices[-1]
 	@property
@@ -460,7 +478,7 @@ class Wire(Shape):
 		return Quantity(1.0)
 	@property
 	def BoundBox(self):
-		return BoundBox(VEC(0,0,0), VEC(1,1,1))
+		return BoundBox(CENTER, VEC(1.0, 1.0, 1.0))
 	def makePipeShell(self, profiles, solid, frenet = False):
 		return Shell(profiles)
 	def removeSplitter(self):
@@ -476,7 +494,7 @@ class Face(Shape):
 	def removeSplitter(self):
 		return self
 	def normalAt(self, index, pos):
-		return VEC(0,0,1)
+		return DIR_Z
 
 class Shell(Shape):
 	def __init__(self, faces = []):
@@ -503,43 +521,43 @@ class Cone(GeometrySurface):
 		self.Radius2 = 0.0
 		self.Height = 10
 		self.Angle  = 45
-		self.Axis = VEC(0.0, 0.0, 1.0)
-		self.Apex = VEC(0.0, 0.0, 0.0)
+		self.Axis = DIR_Z
+		self.Apex = VEC(0.0, 0.0, self.Height)
 	def value(self, u, v):
 		return self.Apex
 
 class Cylinder(GeometrySurface):
 	def __init__(self):
 		super(Cylinder, self).__init__(name = 'Cylinder')
-		self.Axis   = VEC(0,0,1)
-		self.Center = VEC(0,0,0)
+		self.Axis   = DIR_Z
+		self.Center = CENTER
 		self.Radius = 2
 		self.Height = 10
 		self.Angle  = 360
 	def value(self, u, v):
-		major = self.Axis.cross(VEC(0,1,0)) * self.Radius
+		major = self.Axis.cross(DIR_Y) * self.Radius
 		minor = self.Axis * v
 		return self.Center + major + minor
 
 class Plane(GeometrySurface):
-	def __init__(self, Location = VEC(0,0,0), Normal = VEC(0,0,1)):
+	def __init__(self, Location = CENTER, Normal = DIR_Z):
 		super(Plane, self).__init__('Plane')
 		self.Position = Location
 		self.Axis = Normal
 		self.Length = 10
 		self.Width  = 10
 	def value(self, u, v):
-		major = self.Axis.cross(VEC(0,1,0)) * u
-		minor = self.Axis.cross(VEC(1,0,0)) * v
+		major = self.Axis.cross(DIR_Y) * u
+		minor = self.Axis.cross(DIR_X) * v
 		return self.Center + major + minor
 
 class Sphere(GeometrySurface):
 	def __init__(self):
 		super(Sphere, self).__init__('Sphere')
-		self.Radius = 2
-		self.Angle1 = -90
-		self.Angle2 = 90
-		self.Angle3 = 360
+		self.Radius =   2.0
+		self.Angle1 = -90.0
+		self.Angle2 =  90.0
+		self.Angle3 = 360.0
 	@property
 	def Radius(self):
 		return self._radius
@@ -647,14 +665,14 @@ class BSplineSurface(GeometrySurface):
 	def interpolate(self, points, periodic=False): return
 
 class Toroid(GeometrySurface):
-	def __init__(self, major = 1.0, minor = 0.1, center = VEC(0, 0, 0), axis = VEC(0, 0, 1)):
+	def __init__(self, major = 1.0, minor = 0.1, center = CENTER, axis = DIR_Z):
 		super(Toroid, self).__init__('Torus')
 		self.MajorRadius = major
 		self.MinorRadius = minor
 		self.Center = center
 		self.Axis = axis
 	def value(self, u, v):
-		major = self.axis.cross(VEC(0,1,0)) * (self.major + self.minor)
+		major = self.axis.cross(DIR_Y) * (self.major + self.minor)
 		return self.center + major
 
 class SurfaceOfRevolution(GeometrySurface):
@@ -664,7 +682,7 @@ class SurfaceOfRevolution(GeometrySurface):
 		self.Location   = loc
 		self.Direction  = dir
 	def value(self, u, v):
-		major = self.axis.cross(VEC(0,1,0)) * (self.major + self.minor)
+		major = self.axis.cross(DIR_Y) * (self.major + self.minor)
 		return self.curve.StartPoint
 
 class Chamfer(AbstractPart):
@@ -683,19 +701,19 @@ class Fillet(AbstractPart):
 class Prism(AbstractPart):
 	def __init__(self):
 		super(Prism, self).__init__('Prism')
-		self.Polygon       = 6
-		self.Circumradius  = 2
-		self.Height        = 10
+		self.Polygon       =  6.0
+		self.Circumradius  =  2.0
+		self.Height        = 10.0
 
 class Revolution(AbstractPart):
 	def __init__(self):
 		super(Revolution, self).__init__('Revolution')
 		x  = 3.198144353947543
 		z  = 6.783942267687237
-		c  = VEC(0,0,0)
+		c  = CENTER
 		a  = 244.75946975372221
 		b  = 424.7594697537222
-		c1 = makeCircle(7.5, c, VEC(0,1,0), a, b)
+		c1 = makeCircle(7.5, c, DIR_Y, a, b)
 		c2 = makeCircle(7.5, c, VEC(-0.904526, 0, -0.426419), a, b)
 		c1.vertices = c2.vertices = [Vertex(VEC(x,0,-z)), Vertex(VEC(-x,0,z))]
 		c3 = makeLine(VEC(-x, 0, z), VEC( x, 0,-z))
@@ -703,11 +721,11 @@ class Revolution(AbstractPart):
 class Torus(AbstractPart):
 	def __init__(self):
 		super(Torus, self).__init__('Torus')
-		self.Radius1 = 10
-		self.Radius2 = 2
-		self.Angle1  = -180
-		self.Angle2  = 180
-		self.Angle3  = 360
+		self.Radius1 =   10.0
+		self.Radius2 =    2.0
+		self.Angle1  = -180.0
+		self.Angle2  =  180.0
+		self.Angle3  =  360.0
 
 class Wedge(AbstractPart):
 	def __init__(self):

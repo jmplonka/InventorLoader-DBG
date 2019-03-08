@@ -1,8 +1,8 @@
-class QPushButton():
+class QPushButton(object):
 	def __init__(self, caption):
 		self.caption = caption
 
-class QMessageBox():
+class QMessageBox(object):
 	Question   = 0
 	YesRole    = 0
 	NoRole     = 1
@@ -24,22 +24,22 @@ class QMessageBox():
 	def exec_(self):
 		return self.default
 
-class QPixmap():
+class QPixmap(object):
 	def __init__(self, img = None): return
 	def loadFromData(self, filename): return False
 
-class QImage():
+class QImage(object):
 	Format_RGB888 = 1
 	Format_RGB16 = 2
 	def __init__(self, data, width, height, format): return
 	def mirrored(self, horizontally=False, vertically=True): return self
 
-class QApplication():
+class QApplication(object):
 	@staticmethod
 	def setOverrideCursor(cursor): return
 	@staticmethod
 	def restoreOverrideCursor(): return
 
-class Qt():
+class Qt(object):
 	WaitCursor  = 0
 	ArrowCursor = 1

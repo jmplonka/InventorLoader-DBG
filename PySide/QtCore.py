@@ -6,3 +6,7 @@ class QByteArray(object):
 		return self.data[slice.start:slice.stop]
 	@property
 	def length(self): return len(self.data)
+
+class Qt(object):
+	"""description of class"""
+	ApplicationModal = 0

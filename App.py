@@ -10,6 +10,8 @@ __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
 
+from FreeCAD import ViewObject
+
 class DocumentObjectGroup(object):
 	def __init__(self, name = ''):
 		self.name = name

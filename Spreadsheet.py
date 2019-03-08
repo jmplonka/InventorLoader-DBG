@@ -12,10 +12,18 @@ __status__      = 'In-Development'
 
 class Sheet(object):
 	def __init__(self):
+		self.cells   = {}
+		self.aliases = {}
 		return
+
+	def get(self, cellName):
+		return self.cells.get(cellName)
 
 	def set(self, cellName, cellValue):
-		return
+		self.cells[cellName] = cellValue
+
+	def getAlias(self, cellName):
+		return self.aliases.get(cellName)
 
 	def setAlias(self, cellName, aliasName):
-		return
+		self.aliases[cellName] = aliasName
