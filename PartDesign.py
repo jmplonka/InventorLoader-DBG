@@ -6,6 +6,7 @@ Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
 from App     import ViewObject
+from FreeCAD import Quantity, Unit
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -90,3 +91,57 @@ class ArcOfEllipse(AbstractPart):
 class PolarPattern(AbstractPart):
 	def __init__(self):
 		super(PolarPattern, self).__init__()
+
+class Hole(AbstractPart):
+	def __init__(self):
+		super(Hole, self).__init__()
+		self.Profile                  = None
+		self.BaseFeature              = None
+		self.DepthType                = u'Dimension'
+		self.HoleCutType              = u'None'
+		self.DrilllPoint              = u'Angled'
+		self.Threaded                 = False
+		self.ThreadType               = u'None'
+		self.ThreadSize               = []
+		self._Diameter                = Quantity(1.0  , "mm")
+		self._Depth                   = Quantity(10.0 , "mm")
+		self._HoleCutDiameter         = Quantity(2.0  , "mm")
+		self._HoleCutDepth            = Quantity(1.0  , "mm")
+		self._HoleCutCountersinkAngle = Quantity(0.0  , "deg")
+		self._DrillPointAngle         = Quantity(118.0, "deg")
+		self._TaperedAngle            = Quantity(0.0  , "deg")
+	@property
+	def Diameter(self):   return self._Diameter
+	@Diameter.setter
+	def Diameter(self, value): self._Diameter = Quantity(value, Unit("mm"))
+
+	@property
+	def Depth(self):   return self._Depth
+	@Depth.setter
+	def Depth(self, value): self._Depth = Quantity(value, Unit("mm"))
+
+	@property
+	def HoleCutDiameter(self):   return self._HoleCutDiameter
+	@HoleCutDiameter.setter
+	def HoleCutDiameter(self, value): self._HoleCutDiameter = Quantity(value, Unit("mm"))
+
+	@property
+	def HoleCutDepth(self):   return self._HoleCutDepth
+	@HoleCutDepth.setter
+	def HoleCutDepth(self, value): self._HoleCutDepth = Quantity(value, Unit("mm"))
+
+	@property
+	def HoleCutCountersinkAngle(self):   return self._HoleCutCountersinkAngle
+	@HoleCutCountersinkAngle.setter
+	def HoleCutCountersinkAngle(self, value): self._HoleCutCountersinkAngle = Quantity(value, Unit("deg"))
+
+	@property
+	def DrillPointAngle(self):   return self._DrillPointAngle
+	@DrillPointAngle.setter
+	def DrillPointAngle(self, value): self._DrillPointAngle = Quantity(value, Unit("deg"))
+
+	@property
+	def TaperedAngle(self):   return self._TaperedAngle
+	@TaperedAngle.setter
+	def TaperedAngle(self, value): self._TaperedAngle = Quantity(value, Unit("deg"))
+

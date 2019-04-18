@@ -6,7 +6,7 @@
     <ProjectGuid>efe7509c-1fa6-4d8c-9f2b-821e4371940d</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>_main.py</StartupFile>
-    <SearchPath></SearchPath>
+    <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>InventorReader</Name>
@@ -62,6 +62,7 @@
     <Compile Include="importer_Style.py" />
     <Compile Include="ImportGui.py" />
     <Compile Include="InventorViewProviders.py" />
+    <Compile Include="InventorWorkbench.py" />
     <Compile Include="Mesh.py" />
     <Compile Include="_main.py" />
     <Compile Include="Import_IPT.py" />

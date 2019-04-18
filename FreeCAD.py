@@ -18,6 +18,11 @@ INVALID_NAME = re.compile('^[0-9].*')
 
 GuiUp = False
 
+if (sys.version_info.major < 3):
+	_unicode = unicode
+else:
+	_unicode = str
+
 def closeDocument(docName):
 	return
 
@@ -153,8 +158,9 @@ class Vector(object):
 	def __str__(self): return "(%g, %g, %g)" %(self.x, self.y, self.z)
 	def __repr__(self): return self.__str__()
 	def __neg__(self): return self.negative()
-	def distanceToPoint(self, p): return sqrt((self.x-p.x)**2 + (self.y-p.y)**2 + (self.z-p.z)**2)
-	def distanceToLine(self, v, p): return sqrt((v.x-p.x)**2 + (v.y-p.y)**2 + (v.z-p.z)**2)
+	def distanceToPoint(self, pt): return sqrt((self.x-pt.x)**2 + (self.y-pt.y)**2 + (self.z-pt.z)**2)
+	def distanceToLine(self, pt1, pt2): return (self - pt1).cross(pt2).Length / pt2.Length
+	def distanceToPlane(self, v, p): return ((self - v) * p) / p.Length
 	def negative(self): return Vector(-self.x, -self.y, -self.z)
 	def projectToLine(self, b, d): return Vector(1.0, 0.0, 0.0)
 	def cross(self, c):
@@ -281,12 +287,29 @@ class Placement(object):
 	def toMatrix(self): return Matrix(1,0,0,self.Base.x,0,1,0,self.Base.y,0,0,1,self.Base.z,0,0,0,1)
 
 class Quantity(object):
-	def __init__(self, Value=0, Unit = ""):
+	def __init__(self, Value=0, unit = ""):
 		self.Value = Value
-		self.Unit = Unit
+		if (type(unit) in [str, _unicode]):
+			self.Unit = Unit(unit)
+		else:
+			self.Unit = unit
 	def __str(self):
-		return "%g %s" %(self.Value, self.Unit)
+		return "%g %s" %(self.Value, self.Unit.unit)
+	def __repr__(self):
+		return "%g %s" %(self.Value, self.Unit.unit)
 
+class Unit(object):
+	def __init__(self, unit):
+		self.unit = unit
+		self.compulsory = [0,0,0,0,0,0,0,0]
+		if (unit == "mm"):
+			self.compulsory[0]  = 1
+			self.type = "Length"
+		elif (unit == "deg"):
+			self.compulsory[7] = 1
+			self.type = "Angle"
+	def __repr__(self):
+		return u"Unit: %s (%s) - [%s]" %(self.unit, ",".join(["%g" %(c) for c in self.compulsory]), self.type)
 class Matrix(object):
 	def __init__(self, m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44):
 		self.A11 = m11
