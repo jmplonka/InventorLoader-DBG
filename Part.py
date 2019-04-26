@@ -275,7 +275,7 @@ class Circle(Conic):
 	@property
 	def StartPoint(self):
 		major = DIR_Y.cross(self.Axis)
-		if (major.Length == 0):
+		if (major.Length < 1e-6):
 			major = DIR_X
 		else:
 			major.normalize()

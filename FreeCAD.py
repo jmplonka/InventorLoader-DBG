@@ -278,13 +278,17 @@ class Placement(object):
 	def __init__(self, base = Vector(0.0, 0.0, 0.0), rotation = Rotation(Vector(0.0, 0.0, 0.0), 0.0), offset = Vector(0.0, 0.0, 0.0)):
 		if (isinstance(base, Matrix)):
 			self.Base     = Vector(base.A14, base.A24, base.A34)
+			self.Rotation = Rotation(0, 0, 0)
 		else:
 			self.Rotation = rotation
 			self.Base     = base
-
 	def copy(self): return self
 	def multiply(self, d): return self.Base.x*d.Base.x + self.Base.y*d.Base.y + self.Base.z*d.Base.z
 	def toMatrix(self): return Matrix(1,0,0,self.Base.x,0,1,0,self.Base.y,0,0,1,self.Base.z,0,0,0,1)
+	def __repr__(self):
+		b = self.Base
+		r = self.Rotation
+		return u"Placement [Pos=(%g,%g,%g), axis=%s]" %(b.x, b.y, b.z, r.x, r.y, r.z, r.w)
 
 class Quantity(object):
 	def __init__(self, Value=0, unit = ""):

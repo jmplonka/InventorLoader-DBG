@@ -7,22 +7,16 @@ Wrapper class for better comparability with FreeCAD plugin branch
 
 from App     import ViewObject
 from FreeCAD import Quantity, Unit
+from Part    import AbstractPart
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.3.0'
 __status__      = 'In-Development'
 
-class AbstractPart(object):
-	def __init__(self):
-		self.ViewObject = ViewObject(self)
-
-	def setExpression(self, property, expression):
-		pass
-
 class Pad(AbstractPart):
 	def __init__(self):
-		super(Pad, self).__init__()
+		super(Pad, self).__init__('Pad')
 		self.Label = ''
 		self.Sketch = None
 		self.UpToFace = None
@@ -34,12 +28,12 @@ class Pad(AbstractPart):
 
 class Revolution(AbstractPart):
 	def __init__(self):
-		super(Revolution, self).__init__()
+		super(Revolution, self).__init__('Revolution')
 		self.Label = ''
 
 class Line(AbstractPart):
 	def __init__(self, vector1, vector2):
-		super(Line, self).__init__()
+		super(Line, self).__init__('Line')
 		self.vector1 = vector1
 		self.vector2 = vector2
 	@property
@@ -53,7 +47,7 @@ class Line(AbstractPart):
 
 class Circle(AbstractPart):
 	def __init__(self, vector1, vector2, radius):
-		super(Circle, self).__init__()
+		super(Circle, self).__init__('Circle')
 		self.vector1 = vector1
 		self.vector2 = vector2
 		self.Radius  = radius
@@ -63,7 +57,7 @@ class Circle(AbstractPart):
 
 class ArcOfCircle(AbstractPart):
 	def __init__(self, part, radA, radB):
-		super(ArcOfCircle, self).__init__()
+		super(ArcOfCircle, self).__init__('ArcOfCircle')
 		self.part = part
 		self.radA = radA
 		self.radB = radB
@@ -76,25 +70,25 @@ class ArcOfCircle(AbstractPart):
 
 class Ellipse(AbstractPart):
 	def __init__(self, vecA, vecB, vecC):
-		super(Ellipse, self).__init__()
+		super(Ellipse, self).__init__('Ellipse')
 		self.vecA = vecA
 		self.vecB = vecB
 		self.vecC = vecC
 
 class ArcOfEllipse(AbstractPart):
 	def __init__(self, part, radA, radB):
-		super(ArcOfEllipse, self).__init__()
+		super(ArcOfEllipse, self).__init__('ArcOfEllipse')
 		self.part = part
 		self.radA = radA
 		self.radB = radB
 
 class PolarPattern(AbstractPart):
 	def __init__(self):
-		super(PolarPattern, self).__init__()
+		super(PolarPattern, self).__init__('PolarPattern')
 
 class Hole(AbstractPart):
 	def __init__(self):
-		super(Hole, self).__init__()
+		super(Hole, self).__init__('Hole')
 		self.Profile                  = None
 		self.BaseFeature              = None
 		self.DepthType                = u'Dimension'
