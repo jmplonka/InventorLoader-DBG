@@ -4,16 +4,17 @@ import os, sys, tempfile, traceback, gc
 import importerIL, importerSAT, importerUtils
 from Acis2Step import *
 
-def importFolder(p, e):
+def importFolder(p, *x):
 	for root, folders, files in os.walk(p):
 		for f in files:
-			if (f.endswith(e)):
-				try:
-					filename = root.replace('\\', '/') + '/' + f
-					importerIL.open(filename)
-					gc.collect()
-				except:
-					importerUtils.logError(traceback.format_exc())
+			for e in x:
+				if (f.endswith(e)):
+					try:
+						filename = root.replace('\\', '/') + '/' + f
+						importerIL.open(filename)
+						gc.collect()
+					except:
+						importerUtils.logError(traceback.format_exc())
 
 if __name__ == '__main__':
 	if (len(sys.argv) > 1):
@@ -48,9 +49,10 @@ if __name__ == '__main__':
 #		importerIL.open(u"../intersection/2017/Front Upper Arm Mount.ipt")
 
 		importerUtils.__strategy__ = importerUtils.STRATEGY_STEP
+
 #		importFolder(u"../3rdParty", ".ipt")
-		importFolder(u"../Demo-Status", ".sat")
-		importFolder(u"../Demo-Status", ".ipt")
+#		importFolder(u"../Demo-Status", ".sat")
+#		importFolder(u"../Demo-Status", ".ipt")
 #		importFolder(u"../intersection", ".ipt")
 #		importFolder(u"../private", ".ipt")
 #		importFolder(u"../pro", ".ipt")
@@ -70,8 +72,8 @@ if __name__ == '__main__':
 
 		importerUtils.__strategy__ = importerUtils.STRATEGY_NATIVE
 #		importFolder(u"../3rdParty", ".ipt")
-		importFolder(u"../Demo-Status", ".sat")
-		importFolder(u"../Demo-Status", ".ipt")
+#		importFolder(u"../Demo-Status", ".sat")
+#		importFolder(u"../Demo-Status", ".ipt")
 #		importFolder(u"../intersection", ".ipt")
 #		importFolder(u"../private", ".ipt")
 #		importFolder(u"../pro", ".ipt")

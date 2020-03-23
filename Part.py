@@ -64,7 +64,12 @@ def makeSweepSurface(path, profile, factor = 0.0):
 def __valueAtEllipse__(ra, rb, center, axis, u):
 	x = VEC(cos(u) * ra, sin(u) * rb, 0)
 	theta = axis.getAngle(DIR_Z)
-	n = DIR_Z.cross(axis)
+	if (abs(theta) < 1e-06):
+		n = DIR_X
+	elif (abs(theta - pi) < 1e-06):
+		n = -DIR_X
+	else:
+		n = DIR_Z.cross(axis)
 	if (n.Length == 0):
 		return x
 	n = n.normalize()
@@ -123,7 +128,7 @@ class AbstractPart(object):
 	@Placement.setter
 	def Placement(self, plc):
 		self._placement = plc
-	def __repr__(self): return str(self)
+	def __repr__(self): return self.__class__.__name__
 
 class PyObjectBase(AbstractPart):
 	def __init__(self, name, edges = [], wires = []):

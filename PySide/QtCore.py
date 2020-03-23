@@ -10,3 +10,13 @@ class QByteArray(object):
 class Qt(object):
 	"""description of class"""
 	ApplicationModal = 0
+
+class QAbstractTableModel(object):
+	def __init__(self, *args, **kwargs):
+		return super(QAbstractTableModel, self).__init__(*args, **kwargs)
+
+class QModelIndex(object):
+	def __init__(self, row = -1, column = -1):
+		self.row = row
+		self.column = column
+

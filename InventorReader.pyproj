@@ -11,9 +11,10 @@
     <OutputPath>.</OutputPath>
     <Name>InventorReader</Name>
     <RootNamespace>InventorReader</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <InterpreterId>Global|PythonCore|2.7</InterpreterId>
+    <InterpreterId>Global|VisualStudio|Python37</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +37,7 @@
     <Compile Include="Draft.py" />
     <Compile Include="FreeCAD.py" />
     <Compile Include="FreeCADGui.py" />
+    <Compile Include="importerDirectory.py" />
     <Compile Include="importerIL.py" />
     <Compile Include="importerApp.py" />
     <Compile Include="importerBRep.py" />
@@ -64,6 +66,8 @@
     <Compile Include="InventorViewProviders.py" />
     <Compile Include="InventorWorkbench.py" />
     <Compile Include="Mesh.py" />
+    <Compile Include="pivy\coin.py" />
+    <Compile Include="pivy\__init__.py" />
     <Compile Include="_main.py" />
     <Compile Include="Import_IPT.py" />
     <Compile Include="Init.py" />
@@ -80,10 +84,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BOPTools\" />
+    <Folder Include="pivy\" />
     <Folder Include="PySide\" />
   </ItemGroup>
   <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|2.7" />
+    <InterpreterReference Include="Global|VisualStudio|Python37" />
   </ItemGroup>
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in

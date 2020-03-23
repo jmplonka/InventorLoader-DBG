@@ -237,8 +237,8 @@ def ClassFactory(path, name):
 		obj =  class_()
 		obj.Label = name
 	except:
-		Console.PrintError('>ERROR: can\'t create %s.%s!\n' %(moduleName, className))
-		Console.PrintError('>E: ' + traceback.format_exc())
+		Console.PrintError(u">ERROR: can't create %s.%s!\n" %(moduleName, className))
+		Console.PrintError(u">E: " + traceback.format_exc())
 	return obj
 
 class Document(object):
@@ -398,6 +398,18 @@ class BoundBox(object):
 	def YLength(self): return abs(self.p1.y - self.p2.y)
 	@property
 	def ZLength(self): return abs(self.p1.z - self.p2.z)
+	@property
+	def XMin(self): return min(self.p1.x, self.p2.x)
+	@property
+	def XMax(self): return max(self.p1.x, self.p2.x)
+	@property
+	def YMin(self): return min(self.p1.y, self.p2.y)
+	@property
+	def YMax(self): return max(self.p1.y, self.p2.y)
+	@property
+	def ZMin(self): return min(self.p1.z, self.p2.z)
+	@property
+	def ZMax(self): return max(self.p1.z, self.p2.z)
 
 class FreeCADError(AssertionError):
 	def __init__(self, *args):
