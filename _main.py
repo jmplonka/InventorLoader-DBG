@@ -17,6 +17,9 @@ def importFolder(p, *x):
 						importerUtils.logError(traceback.format_exc())
 
 if __name__ == '__main__':
+	importerUtils.setLoggingInfo(False)
+	importerUtils.setLoggingWarn(True)
+	importerUtils.setLoggingError(True)
 	if (len(sys.argv) > 1):
 		e = sys.getfilesystemencoding()
 		importerUtils.setLoggingInfo(False)
@@ -26,7 +29,7 @@ if __name__ == '__main__':
 				file = file.decode(e)
 			if (os.path.isdir(file)):
 				importerUtils.setLoggingWarn(False)
-				importFolder(file, ".ipt")
+				importFolder(file, ".ipt", ".iam")
 			else:
 				importerUtils.setLoggingWarn(False)
 				importerIL.open(file)
@@ -38,9 +41,7 @@ if __name__ == '__main__':
 		#    Formulas
 		# Nativ:
 		#
-		importerUtils.setLoggingInfo(False)
-		importerUtils.setLoggingWarn(False)
-		importerUtils.setLoggingError(True)
+
 
 #		importerIL.open(u"../intersection/2017/Stylistic Front Face.ipt")          # Don't know how to build surface 'SurfaceSpline::off_spl_sur' - only edges displayed!
 #		importerIL.open(u"../tutorials/2012/Rim.ipt")                              # Don't know how to build surface 'SurfaceSpline::rot_spl_sur' - only edges displayed!

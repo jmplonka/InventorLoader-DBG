@@ -64,13 +64,16 @@ class ParameterGrp(object):
 		file = names[0]
 		path = names[1]
 		val = path.split(':')
-		tree = xml.etree.ElementTree.parse(os.path.join(os.getenv('APPDATA'), "FreeCAD", file + ".cfg"))
-		fcp = tree.find(".//*[@Name='Root']")
-		for e in val[1].split('/'):
-			if (fcp is None):
-				break
-			fcp = fcp.find("*[@Name='%s']" %(e))
-		self.prm = fcp
+		try:
+			tree = xml.etree.ElementTree.parse(os.path.join(os.getenv('APPDATA'), "FreeCAD", file + ".cfg"))
+			fcp = tree.find(".//*[@Name='Root']")
+			for e in val[1].split('/'):
+				if (fcp is None):
+					break
+				fcp = fcp.find("*[@Name='%s']" %(e))
+			self.prm = fcp
+		except:
+			self.prm = None
 	def _get(self, name, preset = None):
 		if (self.prm is None):
 			return preset
