@@ -35,9 +35,30 @@
     <Compile Include="BOPTools\GeneralFuseResult.py" />
     <Compile Include="BOPTools\Utils.py" />
     <Compile Include="Draft.py" />
+    <Compile Include="dxfgrabber\acdsdata.py" />
+    <Compile Include="dxfgrabber\blockssection.py" />
+    <Compile Include="dxfgrabber\codepage.py" />
+    <Compile Include="dxfgrabber\const.py" />
+    <Compile Include="dxfgrabber\decode.py" />
+    <Compile Include="dxfgrabber\defaultchunk.py" />
+    <Compile Include="dxfgrabber\drawing.py" />
+    <Compile Include="dxfgrabber\dxfentities.py" />
+    <Compile Include="dxfgrabber\dxfobjects.py" />
+    <Compile Include="dxfgrabber\entitysection.py" />
+    <Compile Include="dxfgrabber\headersection.py" />
+    <Compile Include="dxfgrabber\juliandate.py" />
+    <Compile Include="dxfgrabber\layers.py" />
+    <Compile Include="dxfgrabber\linetypes.py" />
+    <Compile Include="dxfgrabber\color.py" />
+    <Compile Include="dxfgrabber\sections.py" />
+    <Compile Include="dxfgrabber\styles.py" />
+    <Compile Include="dxfgrabber\tablessection.py" />
+    <Compile Include="dxfgrabber\tags.py" />
+    <Compile Include="dxfgrabber\__init__.py" />
     <Compile Include="FreeCAD.py" />
     <Compile Include="FreeCADGui.py" />
     <Compile Include="importerDirectory.py" />
+    <Compile Include="importerDXF.py" />
     <Compile Include="importerIL.py" />
     <Compile Include="importerApp.py" />
     <Compile Include="importerBRep.py" />
@@ -84,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BOPTools\" />
+    <Folder Include="dxfgrabber\" />
     <Folder Include="pivy\" />
     <Folder Include="PySide\" />
   </ItemGroup>

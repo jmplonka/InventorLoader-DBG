@@ -5,9 +5,8 @@ PartDesign.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
-from App     import ViewObject
-from FreeCAD import Quantity, Unit
-from Part    import AbstractPart
+from FreeCAD import Quantity, Unit, Vector
+from Part    import AbstractPart, Shape
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'

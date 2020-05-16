@@ -4,8 +4,6 @@
 Surface.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD import Placement, Vector
-from App     import ViewObject
 from Draft   import Wire
 
 __author__      = 'Jens M. Plonka'

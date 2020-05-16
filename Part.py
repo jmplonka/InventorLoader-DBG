@@ -8,7 +8,6 @@ from FreeCAD import Placement as PLC, Vector as VEC, Rotation as ROT, Matrix as 
 from random  import randint
 from uuid    import uuid1
 from math    import radians, sin, cos, pi, sqrt
-import numpy as np
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -59,7 +58,9 @@ def PyObject_Not(val):
 	return not PyObject_IsTrue(val)
 
 def makeSweepSurface(path, profile, factor = 0.0):
-	return Face([profile])
+	face = Face([profile])
+	face.Surface = BSplineSurface()
+	return face
 
 def __valueAtEllipse__(ra, rb, center, axis, u):
 	x = VEC(cos(u) * ra, sin(u) * rb, 0)
@@ -322,24 +323,28 @@ class ArcOfConic(Curve):
 	def LastParameter(self):  return self.radB
 	def value(self, u):       return self.part.value(u)
 	def parameter(self, p):   return self.part.parameter(p)
+
 class ArcOfCircle(ArcOfConic):
 	def __init__(self, part, radA, radB):
 		if (isinstance(radA, VEC)):
-			A = part
-			B = radA
-			C = radB
-			a = (B - C).Length
-			b = (C - A).Length
-			c = (A - B).Length
-			s = (a + b + c) / 2
-			radius = a*b*c / 4 / sqrt(s * (s - a) * (s - b) * (s - c))
-			b1 = a*a * (b*b + c*c - a*a)
-			b2 = b*b * (a*a + c*c - b*b)
-			b3 = c*c * (a*a + b*b - c*c)
-			P = np.column_stack((A, B, C)).dot(np.hstack((b1, b2, b3)))
-			center = VEC(P.tolist()[0])/(b1 + b2 + b3)
-			axis = (A-C).cross(B-C).normalize()
-			circle = Circle(center, axis, radius)
+			a = part
+			b = radA
+			c = radB
+			C = b - a
+			B = c - a
+			B2 = (a.x**2+a.y**2+a.z**2)-(c.x**2+c.y**2+c.z**2)
+			C2 = (a.x**2+a.y**2+a.z**2)-(b.x**2+B.y**2+b.z**2)
+			CB = C.cross(B) # axis
+			D  = (B.y-C.y*B.x/C.x)
+			ZZ1 = -(B.z-C.z*B.x/C.x)/ D
+			Z01 = -(B2-B.x/C.x*C2)/(2*D)
+			ZZ2 = -(ZZ1*C.y+C.z)/C.x
+			Z02 = -(2*Z01*Cy+C2)/(2*C.x)
+			dz = -((Z02-a.x)*CB.x - (Z01-a.y)*CB.y - a.z*CB.z)/(ZZ2*CB.x-ZZ1*CB.y+CB.z)
+			dx = ZZ2*d.z + Z02
+			dy = ZZ1*d.z + Z01
+			center = VEC(dx, dy, dz)
+			circle = Circle(center, CB, (center-a).Length)
 			a = circle.parameter(A)
 			b = circle.parameter(B)
 			super(ArcOfCircle, self).__init__('ArcOfCircle', circle, a, b)
@@ -388,37 +393,84 @@ class Shape(PyObjectBase):
 	@property
 	def Edges(self):
 		if (self._edges is not None): return self._edges
-		if (self._wires is not None): self._edges = [e for w in self._wires for e in w.Edges]
-		elif (self._faces is not None): self._edges = [e for f in self._faces for e in f.Edges]
-		else: self._edges = []
-		return self._edges
-
+		edges = []
+		if (self._wires is not None):
+			for w in self._wires:
+				edges += w.Edges
+		elif (self._faces is not None):
+			for f in self._faces:
+				edges += f.Edges
+		return edges
 	@property
 	def Wires(self):
-		if (self._edges is not None): return [Wire(self._edges)]
 		if (self._wires is not None): return self._wires
-		if (self._faces is not None): return [w for f in self_faces for w in f.Wires]
-		return []
+		wires = []
+		if (self._edges is not None):
+			wires.append(Wire(self._edges))
+		elif (self._faces is not None):
+			for f in self._faces:
+				wires += f.Wires
+		return wires
 	@property
 	def Faces(self):
 		if (self._faces is not None): return self._faces
 		return []
 	@property
 	def Vertexes(self):
-		if (self.vertices is not None): return self.vertices
-		if (self._edges): return [e.Vertexes for e in self._edges]
-		if (self._wires): return [w.Vertexes for w in self._wires]
-		if (self._faces): return [f.Vertexes for f in self._faces]
-		return []
+		vertexes = []
+		if (self.vertices):
+			vertexes += self.vertices
+		elif (self._edges):
+			for e in self._edges:
+				if (e != self):
+					vertexes += e.Vertexes
+		elif (self._wires):
+			for w in self._wires:
+				if (w != self):
+					vertexes += w.Vertexes
+		elif (self._faces):
+			for f in self._faces:
+				if (f != self):
+					vertexes += f.Vertexes
+		return vertexes
 	def cut(self, other):
 		return self
 	def multiFuse(self, wires):
 		return self
 	def extrude(self, dir):
-		self._faces = [Face(self.Wires)]
-		return self
+		faces = []
+		for w in self.Wires:
+			for e in w.Edges:
+				c = e.Curve
+				f = Face(Wire([e]))
+				if (isinstance(c, Circle)) or (isinstance(c, ArcOfCircle)):
+					f.Surface = Cylinder()
+				elif (isinstance(c, Conic)) or (isinstance(c, ArcOfConic)):
+					f.Surface= BSplineSurface()
+				elif (isinstance(c, Line)) or (isinstance(c, LineSegment)):
+					f.Surface = Plane()
+				elif (isinstance(c, BezierCurve)):
+					f.Surface = BSplineSurface()
+				elif (isinstance(c, Ellipse)) or (isinstance(c, ArcOfEllipse)):
+					f.Surface = BSplineSurface()
+				elif (isinstance(c, BSplineCurve)):
+					f.Surface = BSplineSurface()
+				faces.append(f)
+		return Shape(faces=faces)
 	def revolve(self, center, axis, angle):
-		return Face(self.Wires)
+		faces = []
+		for w in self.Wires:
+			for e in w.Edges:
+				c = e.Curve
+				f = Face(Wire([e]))
+				if (isinstance(c, Circle)) or (isinstance(c, ArcOfCircle)):
+					f.Surface = Toroid()
+				elif (isinstance(c, Line)) or (isinstance(c, LineSegment)):
+					f.Surface = Cylinder()
+				else:
+					f.Surface = BSplineSurface()
+				faces.append(f)
+		return Shape(faces=faces)
 	def translate(self, dir):
 		return
 	def generalFuse(self, wires, tolerance=0.0):
@@ -436,7 +488,14 @@ class Shape(PyObjectBase):
 	def isValid(self):
 		return True
 	def makeOffsetShape(self, distance, tolerance, inter=False, self_inter=False, offsetMode=0, join=0, fill=False):
-		return self
+		f = Face(self.Wires)
+		f.Surface=BSplineSurface()
+		return Shape(faces=[f])
+	def isInside(self, vec, tolerance = 0.1e-6, directly = True):
+		for v in self.Vertexes:
+			if (vec == v):
+				return True
+		return False
 
 class Vertex(Shape):
 	def __init__(self, point):
@@ -458,7 +517,7 @@ class Edge(Shape):
 		self._placement = PLC(CENTER, ROT(DIR_Z, 0.0), CENTER)
 
 	def valueAt(self, value):   return VEC(value, value, value)
-	def normalAt(self, value):  return DIR__X
+	def normalAt(self, value):  return DIR_X
 	def tangentAt(self, value): return -DIR_Y
 	def firstVertex(self):      return self.vertices[0]
 	def lastVertex(self):       return self.vertices[-1]
@@ -475,6 +534,7 @@ class Edge(Shape):
 				v.Placement = plc
 	def __repr__(self):
 		return u"Edge: %s, %s, %s" %(self.firstVertex().Point, self.lastVertex().Point, self.Curve)
+
 class Wire(Shape):
 	def __init__(self, edges):
 		super(Wire, self).__init__(edges, None, None, None)
@@ -513,7 +573,9 @@ class GeometrySurface(Geometry):
 	def __init__(self, name, edges = [], wires = []):
 		super(GeometrySurface, self).__init__(name, edges, wires)
 	def toShape(self):
-		shape = Shape(None, None, [Face(self._wires)], None)
+		face = Face(self._wires)
+		face.Surface = self
+		shape = Shape(None, None, [face], None)
 		shape.Surface = self
 		return shape
 	def parameter(self, point):
@@ -593,8 +655,9 @@ class BSplineCurve(Curve):
 	def getWeights(self):        return self._weights
 	def isRational(self):        return (self._weights is not None) and (len(self._weights) > 0)
 	def isClosed(self):          return self._closed
-	def interpolate(self, points, periodic=False):
-		pass
+	def interpolate(self, Points, PeriodicFlag=False, Tolerance=1e-6, InitialTangent=None, FinalTangent=None, Tangents=None, TangentFlags=False, Parameters=None, Scale=1.0):
+		self._poles   = Points
+		self._weights = Parameters
 	def buildFromPolesMultsKnots(self, poles, mults=(), knots=(), periodic=False, degree=1, weights=None, CheckRational = True):
 		lu = len(poles)
 		sum_of_mults = sum(mults)
@@ -723,6 +786,7 @@ class Revolution(AbstractPart):
 		c1.vertices = c2.vertices = [Vertex(VEC(x,0,-z)), Vertex(VEC(-x,0,z))]
 		c3 = makeLine(VEC(-x, 0, z), VEC( x, 0,-z))
 		self.Shape._edges = [c1, c2, c3]
+
 class Torus(AbstractPart):
 	def __init__(self):
 		super(Torus, self).__init__('Torus')
@@ -837,7 +901,7 @@ class Geom2d:
 			return self
 		def toShape(self, surface, first, last ):
 			bsc   = BSplineCurve()
-			shape = Shape(edges=[Edge(curve=bsc)])
+			shape = Edge(curve=bsc)
 			shape.Curve = bsc
 			return shape
 		def setParameterRange(self, first, last):

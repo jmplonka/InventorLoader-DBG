@@ -6,8 +6,7 @@ Wrapper class for better comparability with FreeCAD plugin branch
 '''
 
 import os, sys, traceback, xml.etree.ElementTree, re
-import numpy as np
-from math                  import sqrt, acos
+from math import sqrt, acos, pi
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -37,12 +36,6 @@ def newDocument(label):
 def Version():
 	return ['0', '16', 'Unknown', 'Unknown', 'Unknown']
 
-def unit_vector(vector):
-	l = np.linalg.norm(vector)
-	if (l != 0):
-		return vector / l
-	return vector
-
 def ConfigGet(name):
 	if (name == 'BuildVersionMajor'): return 0
 	if (name == 'BuildVersionMinor'): return 17
@@ -64,16 +57,13 @@ class ParameterGrp(object):
 		file = names[0]
 		path = names[1]
 		val = path.split(':')
-		try:
-			tree = xml.etree.ElementTree.parse(os.path.join(os.getenv('APPDATA'), "FreeCAD", file + ".cfg"))
-			fcp = tree.find(".//*[@Name='Root']")
-			for e in val[1].split('/'):
-				if (fcp is None):
-					break
-				fcp = fcp.find("*[@Name='%s']" %(e))
-			self.prm = fcp
-		except:
-			self.prm = None
+		tree = xml.etree.ElementTree.parse(os.path.join(os.getenv('APPDATA'), "FreeCAD", file + ".cfg"))
+		fcp = tree.find(".//*[@Name='Root']")
+		for e in val[1].split('/'):
+			if (fcp is None):
+				break
+			fcp = fcp.find("*[@Name='%s']" %(e))
+		self.prm = fcp
 	def _get(self, name, preset = None):
 		if (self.prm is None):
 			return preset
@@ -180,9 +170,15 @@ class Vector(object):
 			return self
 		raise FreeCADError("Cannot normalize null vector")
 	def getAngle(self, other):
-		v1_u = unit_vector((self.x, self.y, self.z))
-		v2_u = unit_vector((other.x, other.y, other.z))
-		return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+		divid = self.Length * other.Length
+		if ((divid < -1e-10) or (divid > 1e-10)):
+			fNum = (self * other) / divid
+			if (fNum < -1):
+				return pi
+			if (fNum > 1):
+				return 0.0
+			return acos(fNum)
+		return 0.0 # division by zero
 	@property
 	def Length(self): return sqrt(self.x**2 + self.y**2 + self.z**2)
 
@@ -206,6 +202,8 @@ class Vector(object):
 		return Vector(self.x / other, self.y / other, self.z / other)
 	def __truediv__(self, other):
 		return Vector(self.x / other, self.y / other, self.z / other)
+	def sub(self, other):
+		return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
 
 class Rotation(object):
 	def __init__(self, axis, angle, z=0.0, w=0.0):
