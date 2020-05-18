@@ -339,15 +339,13 @@ class ArcOfCircle(ArcOfConic):
 			ZZ1 = -(B.z-C.z*B.x/C.x)/ D
 			Z01 = -(B2-B.x/C.x*C2)/(2*D)
 			ZZ2 = -(ZZ1*C.y+C.z)/C.x
-			Z02 = -(2*Z01*Cy+C2)/(2*C.x)
+			Z02 = -(2*Z01*C.y+C2)/(2*C.x)
 			dz = -((Z02-a.x)*CB.x - (Z01-a.y)*CB.y - a.z*CB.z)/(ZZ2*CB.x-ZZ1*CB.y+CB.z)
-			dx = ZZ2*d.z + Z02
-			dy = ZZ1*d.z + Z01
+			dx = ZZ2*dz + Z02
+			dy = ZZ1*dz + Z01
 			center = VEC(dx, dy, dz)
 			circle = Circle(center, CB, (center-a).Length)
-			a = circle.parameter(A)
-			b = circle.parameter(B)
-			super(ArcOfCircle, self).__init__('ArcOfCircle', circle, a, b)
+			super(ArcOfCircle, self).__init__('ArcOfCircle', circle, circle.parameter(a), circle.parameter(b))
 		else:
 			if (radA == radB):
 				raise OCCError(u"Geom_TrimmedCurve::U1 == U2")
