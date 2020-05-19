@@ -43,7 +43,7 @@ if __name__ == '__main__':
 			if (sys.version_info.major < 3):
 				path = path.decode(e)
 			if (os.path.isdir(path)):
-				importFolder(path, ".sat", ".sab")
+				importFolder(path, ".ipt", ".dxf")
 			else:
 				importerIL.open(path)
 	else:
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 #		importerIL.open(r"")
 #		importerIL.open(r"")
 
-#		importFolder(r"../Files/3D-OBjects", u".ipt")
+#		importFolder(r"../Files/3D-Objects", u".ipt")
 #		importFolder(r"../Files/3rdParty", u".ipt")
 #		importFolder(r"../Files/Demo-Status", u".ipt")
 #		importFolder(r"../Files/test", u".ipt")

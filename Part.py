@@ -412,6 +412,8 @@ class Shape(PyObjectBase):
 	@property
 	def Faces(self):
 		if (self._faces is not None): return self._faces
+		if (isinstance(self, Face)):
+			return [self]
 		return []
 	@property
 	def Vertexes(self):
@@ -462,7 +464,7 @@ class Shape(PyObjectBase):
 				c = e.Curve
 				f = Face(Wire([e]))
 				if (isinstance(c, Circle)) or (isinstance(c, ArcOfCircle)):
-					f.Surface = Toroid()
+					f.Surface = SurfaceOfRevolution(c, center, axis)
 				elif (isinstance(c, Line)) or (isinstance(c, LineSegment)):
 					f.Surface = Cylinder()
 				else:

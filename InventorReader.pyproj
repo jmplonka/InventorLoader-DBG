@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -78,6 +78,8 @@
     <Compile Include="importerSAT.py" />
     <Compile Include="importerSegment.py" />
     <Compile Include="importerSegNode.py" />
+    <Compile Include="importerSheetSM.py" />
+    <Compile Include="importerSheetDL.py" />
     <Compile Include="importerTransformation.py" />
     <Compile Include="importerUFRxDoc.py" />
     <Compile Include="importerUtils.py" />
@@ -86,7 +88,10 @@
     <Compile Include="ImportGui.py" />
     <Compile Include="InventorViewProviders.py" />
     <Compile Include="InventorWorkbench.py" />
+    <Compile Include="libs\installLibs.py" />
+    <Compile Include="libs\__init__.py" />
     <Compile Include="Mesh.py" />
+    <Compile Include="importerSheetDC.py" />
     <Compile Include="pivy\coin.py" />
     <Compile Include="pivy\__init__.py" />
     <Compile Include="_main.py" />
@@ -106,6 +111,7 @@
   <ItemGroup>
     <Folder Include="BOPTools\" />
     <Folder Include="dxfgrabber\" />
+    <Folder Include="libs\" />
     <Folder Include="pivy\" />
     <Folder Include="PySide\" />
   </ItemGroup>
