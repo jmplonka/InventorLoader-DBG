@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
+
 class QPushButton(object):
 	def __init__(self, caption):
 		self.caption = caption
 
 class QMessageBox(object):
-	Question   = 0
-	YesRole    = 0
-	NoRole     = 1
-	ActionRole = 2
+	Question   = 4
+	ActionRole = 0
+	RejectRole = 1
 	def __init__(self):
 		self.buttons = {}
 	def setIcon(self, icon):
@@ -23,10 +24,14 @@ class QMessageBox(object):
 		self.default = self.buttons[button]
 	def exec_(self):
 		return self.default
+	def critical(parent, title, message):
+		return True
 
 class QPixmap(object):
 	def __init__(self, img = None): return
 	def loadFromData(self, filename): return False
+	def width(self): return 0
+	def height(self): return 0
 
 class QImage(object):
 	Format_RGB888 = 1

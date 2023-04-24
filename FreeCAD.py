@@ -339,10 +339,12 @@ class Matrix(object):
 		return u"Matrix((%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g),(%g,%g,%g,%g))"%(self.A11,self.A12,self.A13,self.A14,self.A21,self.A22,self.A23,self.A24,self.A31,self.A32,self.A33,self.A34,self.A41,self.A42,self.A43,self.A44)
 
 	def multiply(self, v):
-		x = self.A11 * v.x + self.A12 * v.y + self.A13 * v.z
-		y = self.A21 * v.x + self.A22 * v.y + self.A23 * v.z
-		z = self.A31 * v.x + self.A32 * v.y + self.A33 * v.z
-		return Vector(x, y, z)
+		if (isinstance(v, Vector)):
+			x = self.A11 * v.x + self.A12 * v.y + self.A13 * v.z + self.A14
+			y = self.A21 * v.x + self.A22 * v.y + self.A23 * v.z + self.A24
+			z = self.A31 * v.x + self.A32 * v.y + self.A33 * v.z + self.A34
+			return Vector(x, y, z)
+		return self.__mul__(v)
 
 	def __eq__(self, other):
 		for i in range(4):
@@ -437,3 +439,4 @@ class ViewObject(object):
 		pass
 	def show(self):
 		pass
+		

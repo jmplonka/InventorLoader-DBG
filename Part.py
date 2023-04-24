@@ -4,20 +4,16 @@
 Part.py
 Wrapper class for better comparability with FreeCAD plugin branch
 '''
-from FreeCAD import Placement as PLC, Vector as VEC, Rotation as ROT, Matrix as MAT, Quantity, BoundBox, ViewObject
-from random  import randint
-from uuid    import uuid1
-from math    import radians, sin, cos, pi, sqrt
+from FreeCAD           import Placement as PLC, Vector as VEC, Rotation as ROT, Matrix as MAT, Quantity, BoundBox, ViewObject, Console
+from random            import randint
+from uuid              import uuid1
+from math              import radians, sin, cos, pi, sqrt
+from importerConstants import CENTER, DIR_X, DIR_Y, DIR_Z
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
 __version__     = '0.1.0'
 __status__      = 'In-Development'
-
-CENTER = VEC(0.0, 0.0, 0.0)
-DIR_X  = VEC(1.0, 0.0, 0.0)
-DIR_Y  = VEC(0.0, 1.0, 0.0)
-DIR_Z  = VEC(0.0, 0.0, 1.0)
 
 def makeLine(p1, p2):
 	assert type(p1) == tuple or isinstance(p1, VEC), "first argument must either be vector or tuple"
@@ -49,7 +45,10 @@ def makePolygon(p):
 def getSortedClusters(edges):
 	return [edges]
 
-def show(shape): return shape
+def show(shape, text=None):
+	if (text):
+		Console.PrintMessage('Showing %s\n'%(text))
+	return shape
 
 def PyObject_IsTrue(val):
 	return val != 0
@@ -85,6 +84,9 @@ def __valueAtEllipse__(ra, rb, center, axis, u):
 			2*(bd+ac), 2*(cd-ab), aa+dd-bb-cc, 0,
 			0, 0, 0, 1)
 	return center + m.multiply(x)
+
+def sortEdges(edges):
+	return [edges]
 
 class OCCError(Exception):
 	def __init__(self, *args):
@@ -383,6 +385,7 @@ class Shape(PyObjectBase):
 		self.vertices = vertexes
 		self.ShapeType = "Shape"
 		self.ViewObject   = ViewObject(self)
+		self.Surface = None
 	@property
 	def BoundBox(self):
 		minBB = CENTER
@@ -490,12 +493,16 @@ class Shape(PyObjectBase):
 	def makeOffsetShape(self, distance, tolerance, inter=False, self_inter=False, offsetMode=0, join=0, fill=False):
 		f = Face(self.Wires)
 		f.Surface=BSplineSurface()
-		return Shape(faces=[f])
+		s = Shape(faces=[f])
+		s.Surface = f.Surface
+		return s
 	def isInside(self, vec, tolerance = 0.1e-6, directly = True):
 		for v in self.Vertexes:
 			if (vec == v):
 				return True
 		return False
+	def reversed(self): return self
+	def reverse(self): return self
 
 class Vertex(Shape):
 	def __init__(self, point):
@@ -594,11 +601,11 @@ class Cone(GeometrySurface):
 		return self.Apex
 
 class Cylinder(GeometrySurface):
-	def __init__(self):
+	def __init__(self, circle = Circle(CENTER, DIR_Z, 2.0)):
 		super(Cylinder, self).__init__(name = 'Cylinder')
-		self.Axis   = DIR_Z
-		self.Center = CENTER
-		self.Radius = 2
+		self.Axis   = circle.Axis
+		self.Center = circle.Center
+		self.Radius = circle.Radius
 		self.Height = 10
 		self.Angle  = 360
 	def value(self, u, v):

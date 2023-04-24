@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -14,7 +14,6 @@
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <InterpreterId>Global|VisualStudio|Python37</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,8 +56,10 @@
     <Compile Include="dxfgrabber\__init__.py" />
     <Compile Include="FreeCAD.py" />
     <Compile Include="FreeCADGui.py" />
+    <Compile Include="importerConstants.py" />
     <Compile Include="importerDirectory.py" />
     <Compile Include="importerDXF.py" />
+    <Compile Include="importerF3D.py" />
     <Compile Include="importerIL.py" />
     <Compile Include="importerApp.py" />
     <Compile Include="importerBRep.py" />
@@ -88,16 +89,12 @@
     <Compile Include="ImportGui.py" />
     <Compile Include="InventorViewProviders.py" />
     <Compile Include="InventorWorkbench.py" />
-    <Compile Include="libs\installLibs.py" />
-    <Compile Include="libs\__init__.py" />
     <Compile Include="Mesh.py" />
     <Compile Include="importerSheetDC.py" />
     <Compile Include="pivy\coin.py" />
     <Compile Include="pivy\__init__.py" />
     <Compile Include="_main.py" />
     <Compile Include="Import_IPT.py" />
-    <Compile Include="Init.py" />
-    <Compile Include="InitGui.py" />
     <Compile Include="Part.py" />
     <Compile Include="PartDesign.py" />
     <Compile Include="PySide\QtCore.py" />
@@ -111,12 +108,8 @@
   <ItemGroup>
     <Folder Include="BOPTools\" />
     <Folder Include="dxfgrabber\" />
-    <Folder Include="libs\" />
     <Folder Include="pivy\" />
     <Folder Include="PySide\" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="Global|VisualStudio|Python37" />
   </ItemGroup>
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in

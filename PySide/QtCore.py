@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class QByteArray(object):
 	"""description of class"""
 	def __init__(self, data):
