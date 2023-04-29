@@ -7,6 +7,7 @@ Wrapper class for better comparability with FreeCAD plugin branch
 
 import os, sys, traceback, xml.etree.ElementTree, re
 from math import sqrt, acos, pi
+from os.path import expandvars, join
 
 __author__      = 'Jens M. Plonka'
 __copyright__   = 'Copyright 2017, Germany'
@@ -17,13 +18,17 @@ INVALID_NAME = re.compile('^[0-9].*')
 
 GuiUp = False
 
-if (sys.version_info.major < 3):
-	_unicode = unicode
-else:
-	_unicode = str
+if (sys.version_info.major > 2):
+	unicode = str
 
 def closeDocument(docName):
 	return
+
+def decode(filename, utf=False):
+	if (isinstance(filename, unicode)):
+		encoding = 'utf8' if (utf) else sys.getfilesystemencoding()
+		filename = filename.encode(encoding).decode("utf-8")
+	return filename
 
 def getDocument(filename):
 	label = os.path.splitext(os.path.basename(filename))[0]
@@ -51,19 +56,37 @@ def _getObjectName(name):
 		return "_%s" %(v)
 	return v
 
+def getAppData():
+	"""
+	Returns a parent directory path
+	where persistent application data can be stored.
+
+	# linux: ~/.local/share
+	# macOS: ~/Library/Application Support
+	# windows: %AppData%/Roaming
+	"""
+	home: str = expandvars('$HOME')
+	if (sys.platform == "win32"):  return expandvars('%AppData%')
+	if (sys.platform == "linux"):  return join(expandvars('$HOME'), ".local", "share")
+	if (sys.platform == "darwin"): return join(expandvars('$HOME'), 'Library', 'Application Support')
+	raise Exception("Platform %s not supported!" %(sys.platform))
+
 class ParameterGrp(object):
 	def __init__(self, name):
 		names = name.split(' ')
 		file = names[0]
 		path = names[1]
 		val = path.split(':')
-		tree = xml.etree.ElementTree.parse(os.path.join(os.getenv('APPDATA'), "FreeCAD", file + ".cfg"))
-		fcp = tree.find(".//*[@Name='Root']")
-		for e in val[1].split('/'):
-			if (fcp is None):
-				break
-			fcp = fcp.find("*[@Name='%s']" %(e))
-		self.prm = fcp
+		try:
+			tree = xml.etree.ElementTree.parse(os.path.join(getAppData(), "FreeCAD", file + ".cfg"))
+			fcp = tree.find(".//*[@Name='Root']")
+			for e in val[1].split('/'):
+				if (fcp is None):
+					break
+				fcp = fcp.find("*[@Name='%s']" %(e))
+			self.prm = fcp
+		except:
+			self.prm = None
 	def _get(self, name, preset = None):
 		if (self.prm is None):
 			return preset
@@ -217,6 +240,8 @@ class Rotation(object):
 			self.y = angle
 			self.z = z
 			self.w = w
+		self.Axis = Vector(self.x, self.y, self.z)
+		self.Angle = self.w
 
 	def Q(self, x, y, z, w):
 		self.x = x
@@ -294,7 +319,7 @@ class Placement(object):
 class Quantity(object):
 	def __init__(self, Value=0, unit = ""):
 		self.Value = Value
-		if (type(unit) in [str, _unicode]):
+		if (type(unit) in [str, unicode]):
 			self.Unit = Unit(unit)
 		else:
 			self.Unit = unit
@@ -439,4 +464,5 @@ class ViewObject(object):
 		pass
 	def show(self):
 		pass
-		
+
+def listDocuments(): return {}

@@ -44,8 +44,6 @@ if __name__ == '__main__':
 #		importerUtils.__strategy__ = importerUtils.STRATEGY_NATIVE
 		importerUtils.setLoggingWarn(False)
 		for path in sys.argv[1:]:
-			if (sys.version_info.major < 3):
-				path = path.decode(e)
 			if (os.path.isdir(path)):
 #				importFolder(path, ".ipt")
 				importFolder(path, ".ipt", ".dxf", ".f3d")

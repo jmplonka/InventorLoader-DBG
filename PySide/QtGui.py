@@ -8,6 +8,7 @@ class QMessageBox(object):
 	Question   = 4
 	ActionRole = 0
 	RejectRole = 1
+	Information = 3
 	def __init__(self):
 		self.buttons = {}
 	def setIcon(self, icon):
